@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 stream = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+stream.set(cv2.CAP_PROP_EXPOSURE, X)
 stream.set(cv2.CAP_PROP_FRAME_WIDTH, 480)
 stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 print("hihi")
