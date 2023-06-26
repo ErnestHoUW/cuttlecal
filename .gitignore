@@ -1,1 +1,4 @@
+.vscode/settings.json
 build/
+c++/CMakeCache.txt
+c++/CMakeFiles/
