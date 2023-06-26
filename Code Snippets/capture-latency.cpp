@@ -8,28 +8,30 @@ using namespace std;
 
 int main() {
     Mat frame;
-    namedWindow("Webcam Output");
+    namedWindow("Webcam_Output");
 
-    VideoCapture cap(0);
+    VideoCapture cap(0,CAP_DSHOW);
 
     if (!cap.isOpened()) {
         cout << "webcam in use";
     }
 
-    time_t start, end;
-    int amount_of_frames = 1000;
-    double sum_latency = 0;
-    for (size_t i = 0; i < 1000; i++) {
+    double amount_of_frames = 1000;
+    int64 sum_latency = 0;
+    for (size_t i = 0; i < amount_of_frames; i++) {
         auto start = high_resolution_clock::now();
-        cap >> frame;
+        cap.read(frame);
 
-        imshow("Webcam Output", frame);
-        waitKey(1);
+        imshow("Webcam_Output", frame);
+        
         auto stop = high_resolution_clock::now();
-        sum_latency += duration_cast<milliseconds>(stop - start).count;
+        int64 latency = duration_cast<microseconds>(stop - start).count();
+        sum_latency += latency;
+        waitKey(1);
     }
 
-    cout << "Average Latency: " << sum_latency / amount_of_frames << setprecision(5) << " msec" <<endl;
+    cout << "Average Latency: " << sum_latency / amount_of_frames / 1000 << " msec" <<endl;
 
     return 0;
 }
+
