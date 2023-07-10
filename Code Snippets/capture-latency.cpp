@@ -10,9 +10,9 @@ int main() {
     Mat frame;
     namedWindow("Webcam_Output");
 
-    VideoCapture cap(0,CAP_DSHOW);
+    VideoCapture stream(0,CAP_DSHOW);
 
-    if (!cap.isOpened()) {
+    if (!stream.isOpened()) {
         cout << "webcam in use";
     }
 
@@ -20,7 +20,7 @@ int main() {
     int64 sum_latency = 0;
     for (size_t i = 0; i < amount_of_frames; i++) {
         auto start = high_resolution_clock::now();
-        cap.read(frame);
+        stream.read(frame);
 
         imshow("Webcam_Output", frame);
         

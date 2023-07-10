@@ -1,37 +1,48 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include <chrono>
 
-using namespace std::chrono;
 using namespace cv;
 using namespace std;
+
+void display(Mat &im, Mat &bbox) {
+    int n = bbox.rows;
+    for (int i = 0; i < n; i++) {
+        line(im, Point2i(bbox.at<float>(i, 0), bbox.at<float>(i, 1)), Point2i(bbox.at<float>((i + 1) % n, 0), bbox.at<float>((i + 1) % n, 1)), Scalar(255, 0, 0), 3);
+    }
+}
 
 int main() {
     Mat frame;
     namedWindow("Webcam_Output");
 
-    VideoCapture cap(0,CAP_DSHOW);
+    VideoCapture stream(0, CAP_DSHOW);
+    stream.set(CAP_PROP_SETTINGS, 1);
 
-    if (!cap.isOpened()) {
+    if (!stream.isOpened()) {
         cout << "webcam in use";
     }
 
-    double amount_of_frames = 1000;
-    int64 sum_latency = 0;
-    for (size_t i = 0; i < amount_of_frames; i++) {
-        auto start = high_resolution_clock::now();
-        cap.read(frame);
-
-        imshow("Webcam_Output", frame);
+    QRCodeDetector qrDecoder = QRCodeDetector::QRCodeDetector();
+   
+    while (true) {
+        Mat bbox, rectifiedImage;
+        stream.read(frame);
         
-        auto stop = high_resolution_clock::now();
-        int64 latency = duration_cast<microseconds>(stop - start).count();
-        sum_latency += latency;
-        waitKey(1);
-    }
+        // string data = qrDecoder.detectAndDecode(frame, bbox, rectifiedImage);
+        // if (data.length() > 0) {
+        //     cout << "Decoded Data : " << data << endl;
 
-    cout << "Average Latency: " << sum_latency / amount_of_frames / 1000 << " msec" <<endl;
+        //     //display(frame, bbox);
+        //     //rectifiedImage.convertTo(rectifiedImage, CV_8UC3);
+        //     //imshow("Rectified Image", rectifiedImage);
+
+        // }
+        imshow("Webcam_Output", frame);
+        char key = waitKey(1);
+        if (key == 'q') {
+            break;
+        }
+    }
 
     return 0;
 }
-
