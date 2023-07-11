@@ -2,3 +2,11 @@
 build/
 c++/CMakeCache.txt
 c++/CMakeFiles/
+
+CMakeLists.txt.user
+*.o
+*.so
+*.lib
+*.d
+*.a
+compile_commands.json
