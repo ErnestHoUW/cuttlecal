@@ -1,25 +1,37 @@
-import React from 'react';
-import { Container, Row, Col, ListGroup, Form } from 'react-bootstrap';
+import React, { useState } from "react";
+import QRCode from 'qrcode.react';
 
-const WebcamShroudSetup = () => {
+const ColorChangeScreen = () => {
+  const [color, setColor] = useState([255, 255, 255]); // initial color is white
+
+  const changeColor = (event) => {
+    let hexColor = event.target.value;
+    let r = parseInt(hexColor.slice(1,3), 16);
+    let g = parseInt(hexColor.slice(3,5), 16);
+    let b = parseInt(hexColor.slice(5,7), 16);
+    setColor([r, g, b]);
+  };
+
+  let rgbColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+  let qrValue = JSON.stringify(color);
+
   return (
-    <Container className="mt-4">
-      <Row className="justify-content-md-center">
-        <Col md="8">
-          <h1 className="text-center mb-4">Webcam Shroud Setup</h1>
-          <ListGroup variant="flush">
-            <ListGroup.Item className="d-flex justify-content-between align-items-center">
-              <div>
-                <h5>Step 1:</h5>
-                <p>Identify the correct webcam and ensure it is properly connected to your device.</p>
-              </div>
-              <Form.Check aria-label="option 1" className="form-check-inline mb-2"/>
-            </ListGroup.Item>
-          </ListGroup>
-        </Col>
-      </Row>
-    </Container>
+    <div style={{ backgroundColor: rgbColor, height: '100vh', width: '100%' }}>
+      <input 
+        type="color" 
+        value={rgbColor} 
+        onChange={changeColor}
+        style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+      />
+      <QRCode 
+        value={qrValue} 
+        size={128}
+        level={"H"}
+        includeMargin={true}
+        style={{ position: 'absolute', bottom: '20px', left: '20px'}}
+      />
+    </div>
   );
 };
 
-export default WebcamShroudSetup;
+export default ColorChangeScreen;
