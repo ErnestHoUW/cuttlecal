@@ -2,12 +2,14 @@
 Mat get_gray_correction_layer(VideoCapture &stream) {
     // Gray Uniformity Correction
     Mat frame;
+    stream.read(frame);
     int frame_width = frame.cols;
     int frame_height = frame.rows;
     Mat average_gray_frame = Mat(frame_height, frame_width, CV_32FC3, Scalar(0, 0, 0));
     int amount_of_gray_frames = 100;
     for (int i = 1; i <= amount_of_gray_frames; i++) {
         stream.read(frame);
+        imshow("Webcam Ouptut1", frame);
         for (int x = 0; x < frame_width; x++) {
             for (int y = 0; y < frame_height; y++) {
                 Vec3b measured_color = frame.at<Vec3b>(y, x);
@@ -15,6 +17,8 @@ Mat get_gray_correction_layer(VideoCapture &stream) {
                 average_gray_frame.at<Vec3f>(y, x) = Vec3f(current_gray[0] + measured_color[0], current_gray[1] + measured_color[1], current_gray[2] + measured_color[2]);
             }
         }
+        frame.release();
+        waitKey(1);
     }
 
     for (int y = 0; y < frame_height; y++) {
@@ -55,7 +59,7 @@ Mat correct_gray_uniformity(Mat &frame, Mat &gray_correction_layer) {
     return adjusted_frame;
 }
 
-Mat get_color_average_matrix(Mat &frame, vector<Point> quadPoints) {
+Mat get_average_color_matrix(Mat &frame, vector<Point> quadPoints) {
     int frame_width = frame.cols;
     int frame_height = frame.rows;
     if (quadPoints.size() < 3) {

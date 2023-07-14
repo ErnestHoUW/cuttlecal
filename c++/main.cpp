@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <opencv2/opencv.hpp>
 
 #include <BarcodeFormat.h>
@@ -7,20 +8,18 @@
 #include <TextUtfEncoding.h>
 #include <ReadBarcode.h>
 
-#include "image_processing.h"
 #include "syncqueue.h"
+#include "measurement.h"
 
 using namespace cv;
 using namespace ZXing;
 using namespace std;
 
 int frame_height;
-int frame_width;
-Mat gray_correction_layer;
+int frame_width;;
 
 SyncQueue<Mat> frameQueue;
-SyncQueue<Mat> debugQueue;
-SyncQueue<string> measurementQueue;
+SyncQueue<Measurement> measurementQueue;
 
 void producer() {
     Mat frame;
@@ -34,7 +33,7 @@ void producer() {
         cout << "webcam in use";
     }
 
-    // gray_correction_layer = get_gray_correction_layer(stream);
+    Measurement::set_gray_correction_layer(stream);
 
     while (!frameQueue.stopped()) {
         stream.read(frame);
@@ -54,9 +53,6 @@ void consumer(int id) {
         
         Mat frame = result.second;
         ZXing::ImageView imageView(frame.data, frame.cols, frame.rows, ZXing::ImageFormat::BGR);
-        // cout << "Consumer " << id << ": pooped" << endl;
-        // string windowname = "Consumer " + to_string(id) + " Frame";
-        // imshow(windowname, frame);
         // fix gray uniformity
         // frame = correct_gray_uniformity(frame, gray_correction_layer);
         //auto start = std::chrono::high_resolution_clock::now();
@@ -76,23 +72,23 @@ void consumer(int id) {
             }
             Position points = qrcode.position();
             
-            vector<cv::Point> quadPoints;
+            vector<Point> quadPoints;
             quadPoints.push_back(Point(points.bottomLeft().x, points.bottomLeft().y));
             quadPoints.push_back(Point(points.topLeft().x,points.topLeft().y));
             quadPoints.push_back(Point(points.topRight().x, points.topRight().y));
             quadPoints.push_back(Point(points.bottomRight().x,points.bottomRight().y));
 
             // get singular color measurement
-            Scalar average_color = get_average_color(frame, quadPoints);
-            debugQueue.push(get_color_average_matrix(frame,quadPoints).clone());
-            // parse qr_code data
-            string measurement = qr_code_data;
-            for (int i = 0; i < 3; ++i) {
-                measurement += ',';
-                measurement += to_string(average_color[i]);
-            }
-            std::cout << "Decoded QR Code: " << qr_code_data << "Measured Color:"<< measurement << endl;
-            frame.release();
+            // Scalar average_color = get_average_color(frame, quadPoints);
+            // // debugQueue.push(get_average_color_matrix(frame,quadPoints).clone());
+            // // parse qr_code data
+            // string measurement = qr_code_data;
+            // for (int i = 0; i < 3; ++i) {
+            //     measurement += ',';
+            //     measurement += to_string(average_color[i]);
+            // }
+            Measurement measurement(frame,quadPoints,qr_code_data);
+            std::cout << "Decoded QR Code: " << qr_code_data << "Measured Color:"<< measurement.get_csv_measurement() << endl;
             measurementQueue.push(measurement);
         } else {
             //cout << "Consumer " << id << ": No QR" << endl;
@@ -116,18 +112,28 @@ int main() {
         c.join();
     }
 
+    measurementQueue.stop();
+
     destroyAllWindows();
-    
+
+    cout<< "hihi done" <<endl;
+    //export measurments to csv
+    ofstream measurement_csv("measurements.csv");
+
+    measurement_csv << "\"Displayed Color Code\",\"Measured Color Code\"\n"; // the column headers
+
     int i=0;
     while(true){
-        pair<bool, Mat> result = debugQueue.pop();
+        pair<bool, Measurement> result = measurementQueue.pop();
         if (!result.first) {
             break;  // No more values to consume
         }
-        Mat debug_frame=result.second;
-        imwrite("Debug"+to_string(i)+".png",debug_frame);
+        Measurement measurement=result.second;
+        measurement_csv << measurement.get_csv_measurement() <<"\n";
+        imwrite("Debug"+to_string(i)+".png", measurement.get_processed_frame());
         i++;
     }
+    measurement_csv.close();
 
     return 0;
 }

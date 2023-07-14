@@ -29,7 +29,7 @@ def create_qr(qr_data, border_color):
     img = np.array(img.convert('RGB')) 
 
     # Add border to the image
-    border_width = 200
+    border_width = 300
     border_img = ImageOps.expand(Image.fromarray(img),border=border_width,fill=border_color)
     
     return np.array(border_img)
