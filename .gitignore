@@ -12,23 +12,23 @@ CMakeLists.txt.user
 compile_commands.json
 
 # dependencies
-/node_modules
-/.pnp
-.pnp.js
+/javascript/frontend/node_modules
+/javascript/frontend/.pnp
+/javascript/frontend/.pnp.js
 
 # testing
-/coverage
+/javascript/frontend/coverage
 
 # production
-/build
+/javascript/frontend/build
 
 # misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+/javascript/frontend/.DS_Store
+/javascript/frontend/.env.local
+/javascript/frontend/.env.development.local
+/javascript/frontend/.env.test.local
+/javascript/frontend/.env.production.local
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+javascript/frontend/npm-debug.log*
+javascript/frontend/yarn-debug.log*
+javascript/frontend/yarn-error.log*
