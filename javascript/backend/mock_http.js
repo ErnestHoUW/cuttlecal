@@ -17,14 +17,14 @@ const generateRandomRGBColor = () => {
   ];
 }
 
-app.get('/colors', (req, res) => {
+app.post('/colors', (req, res) => {
   let colorsArray = [];
   
   for(let i = 0; i < 500; i++){
     colorsArray.push(generateRandomRGBColor());
   }
 
-  res.json(colorsArray);
+  res.json({number: 1000, colors: colorsArray});
 })
 
 app.listen(port, () => {

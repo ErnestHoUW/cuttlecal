@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <httplib.h>
+#include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 
 #include <BarcodeFormat.h>
@@ -20,6 +22,9 @@ int frame_width;;
 
 SyncQueue<Mat> frameQueue;
 SyncQueue<Measurement> measurementQueue;
+SyncQueue<Measurement> debugQueue;
+
+string client_url = "http://localhost:3001";
 
 void producer() {
     Mat frame;
@@ -89,7 +94,14 @@ void consumer(int id) {
             // }
             Measurement measurement(frame,quadPoints,qr_code_data);
             std::cout << "Decoded QR Code: " << qr_code_data << "Measured Color:"<< measurement.get_csv_measurement() << endl;
-            measurementQueue.push(measurement);
+            Scalar measurement_stddev = measurement.get_standard_deviation();
+            Scalar stddev_limits = Measurement::get_acceptable_stddev();
+            if (measurement_stddev[0]<stddev_limits[0]&&measurement_stddev[1]<stddev_limits[1]&&measurement_stddev[2]<stddev_limits[2]){
+                measurementQueue.push(measurement);
+            }else{
+                cout<<"thrown out frame"<<endl;
+                debugQueue.push(measurement);
+            }
         } else {
             //cout << "Consumer " << id << ": No QR" << endl;
         }
@@ -97,8 +109,25 @@ void consumer(int id) {
 }
 
 int main() {
-    thread producerThread(producer);
+    // httplib::Client cli("http://0.0.0.0:3000");
 
+    // nlohmann::json j;
+    // j["number"] = 5;
+    // j["colors"] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}, {13, 14, 15}};
+
+    // auto res = cli.Post("/colors", j.dump(), "application/json");
+
+    // if (res) {
+    //     if (res->status == 200) {
+    //         std::cout << res->body << std::endl;
+    //     } else {
+    //         std::cout << "Failed to post JSON, status code: " << res->status << std::endl;
+    //     }
+    // } else {
+    //     std::cout << "Failed to connect to the server or other network error occurred." << std::endl;
+    // }
+    thread producerThread(producer);
+    cout<<"hello"<<endl;
     const uint8_t numConsumers = 16;
     thread consumers[numConsumers];
 
@@ -113,6 +142,7 @@ int main() {
     }
 
     measurementQueue.stop();
+    debugQueue.stop();
 
     destroyAllWindows();
 
@@ -121,15 +151,29 @@ int main() {
     ofstream measurement_csv("measurements.csv");
 
     measurement_csv << "\"Displayed Color Code\",\"Measured Color Code\"\n"; // the column headers
-
+    
     int i=0;
     while(true){
         pair<bool, Measurement> result = measurementQueue.pop();
         if (!result.first) {
             break;  // No more values to consume
         }
+        
         Measurement measurement=result.second;
+        Scalar color_code = measurement.get_displayed_color_code();
         measurement_csv << measurement.get_csv_measurement() <<"\n";
+        imwrite("measurement"+to_string(i)+".png", measurement.get_processed_frame());
+        i++;
+    }
+    i=0;
+    while(true){
+        pair<bool, Measurement> result = debugQueue.pop();
+        if (!result.first) {
+            break;  // No more values to consume
+        }
+        
+        Measurement measurement=result.second;
+        
         imwrite("Debug"+to_string(i)+".png", measurement.get_processed_frame());
         i++;
     }

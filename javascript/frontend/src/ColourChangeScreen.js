@@ -7,8 +7,9 @@ import Button from 'react-bootstrap/Button';
 import MyNavbar from "./MyNavbar";
 
 const ColourChangeScreen = ({ apiUrl }) => {
+    const [timeInterval, setTimeInterval] = useState(null);
     const [colourList, setColourList] = useState([]);
-    const [currentColour, setCurrentColour] = useState([255, 255, 255]);
+    const [currentColour, setCurrentColour] = useState([100, 100, 100]);
     const [bgColor, setBgColor] = useState(`rgb(${currentColour})`);
     const [pointer, setPointer] = useState(0);
     const [qrSize, setQrSize] = useState(128); 
@@ -16,6 +17,7 @@ const ColourChangeScreen = ({ apiUrl }) => {
     const [isFullscreen, goFullscreen, exitFullscreen] = useFullscreen(); 
     const elementRef = useRef(null); 
     const [isStarted, setIsStarted] = useState(false); 
+    const [showQR, setShowQR] = useState(true);
 
     const updateWindowDimensions = () => {
         setWindowSize({ width: window.innerWidth, height: window.innerHeight });
@@ -35,22 +37,40 @@ const ColourChangeScreen = ({ apiUrl }) => {
     }, []);
 
     useEffect(() => {
-        if (isStarted && apiUrl) {
-            axios.get(apiUrl)
-                .then(res => {
-                    if (Array.isArray(res.data)) {
-                        setColourList(res.data);
-                        console.log(res.data)
-                    } else {
-                        console.error("Data received is not an array");
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    setColourList([[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 255]]);
-                });
+        const makeAPICall = async () => {
+            const response = await axios.post(apiUrl);
+            return response.data;
+        };
+
+        const waitForAPICall = async () => {
+            let data;
+            setShowQR(false)
+            while (true) {
+                try {
+                    data = await makeAPICall();
+                    setShowQR(true)
+                    break;
+                } catch (error) {
+                    // Handle error if needed
+                    console.error(error);
+                }
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+            }
+
+            if (Array.isArray(data.colors)) {
+                setColourList(data.colors);
+                setTimeInterval(data.number);
+                console.log(data.colors);
+                console.log(data.number);
+            } else {
+                console.error("Data received is not an array");
+            }
+        };
+
+        if (isStarted) {
+            waitForAPICall();
         }
-    }, [apiUrl, isStarted]); 
+    }, [apiUrl, isStarted]);
 
     useEffect(() => {
         if (colourList.length > 0 && colourList[pointer]) {
@@ -60,22 +80,22 @@ const ColourChangeScreen = ({ apiUrl }) => {
     }, [pointer, colourList]);
 
     useEffect(() => {
-        if (isStarted && colourList.length > 0) { 
+        if (isStarted && colourList.length > 0) {
             const intervalId = setInterval(() => {
-              setPointer(pointer => {
-                if (pointer + 1 >= colourList.length) {
-                  setIsStarted(false); // Stop the color change
-                  setBgColor('rgb(255, 255, 255)'); // Set the screen back to white
-                  return 0; // Reset the pointer
-                }
+                setPointer(pointer => {
+                    if (pointer >= colourList.length - 1) {
+                        setIsStarted(false); // Stop the color change
+                        setBgColor('rgb(255, 255, 255)'); // Set the screen back to white
+                        return 0; // Reset the pointer
+                    }
 
-                return (pointer + 1);
-              });
-            }, 50);
+                    return pointer + 1;
+                });
+            }, timeInterval);
 
             return () => clearInterval(intervalId);
         }
-    }, [colourList.length, isStarted]); 
+    }, [colourList.length, isStarted, timeInterval]);
 
     let qrValue = JSON.stringify(currentColour);
 
@@ -88,15 +108,17 @@ const ColourChangeScreen = ({ apiUrl }) => {
                 width: isFullscreen ? '100%' : `${windowSize.width}px`
             }}
         >
-            <QRCode
-                value={qrValue}
-                size={qrSize}
-                level={"H"}
-                includeMargin={false}
-                fgColour="#000000"
-                bgColour="#FFFFFF"
-                style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
-            />
+            { showQR && 
+                <QRCode
+                    value={qrValue}
+                    size={qrSize}
+                    level={"H"}
+                    includeMargin={false}
+                    fgColour="#000000"
+                    bgColour="#FFFFFF"
+                    style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+                />
+            }
             <input type="range" min="50" max="500" value={qrSize} onChange={(e) => setQrSize(parseInt(e.target.value))} style={{ position: 'fixed', bottom: '10%', left: '2%', width:'20vw' }} />
             <Button onClick={toggleFullscreen} style={{ position: 'fixed', right: '2%', bottom: '10%', fontSize: '1.5vw', marginRight: '1.5vw'}}>Toggle Fullscreen</Button>
             {!isStarted && 
@@ -111,7 +133,7 @@ const ColourChangeScreen = ({ apiUrl }) => {
                             Start
                     </Button>
                 </div>
-                }
+            }
         </div>
     );
 };
