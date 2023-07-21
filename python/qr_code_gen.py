@@ -3,15 +3,16 @@ import cv2
 import numpy as np
 from PIL import Image, ImageColor, ImageOps
 import time
+from tqdm import tqdm
 
 import random
 
 def generate_random_color():
-    r = random.randint(0, 255)
-    g = random.randint(0, 255)
     b = random.randint(0, 255)
+    g = random.randint(0, 255)
+    r = random.randint(0, 255)
 
-    return (r, g, b)
+    return (b, g, r)
 
 
 def create_qr(qr_data, border_color):
@@ -39,16 +40,16 @@ def create_qr(qr_data, border_color):
 rgb_tuple = (100,100,100)
 
 # Create a numpy array of shape 500x500x3, filled with the RGB tuple
-image_array = np.full((500, 500, 3), rgb_tuple, dtype=np.uint8)
+image_array = np.full((800, 800, 3), rgb_tuple, dtype=np.uint8)
 
 # OpenCV uses BGR instead of RGB, so we need to convert the color order
 bgr_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
 cv2.imshow('QR Code', bgr_image)
-cv2.waitKey(3000)  
-for i in range(100):
+cv2.waitKey(10000)  
+for i in tqdm(range(100)):
     rand_color=generate_random_color()
 
-    img = create_qr(f"{rand_color[0]},{rand_color[1]},{rand_color[2]}", rand_color)
+    img = create_qr(f"{rand_color[2]},{rand_color[1]},{rand_color[0]}", rand_color) #convert from bgr to rgb
     cv2.imshow('QR Code', img)
     cv2.waitKey(50)
 

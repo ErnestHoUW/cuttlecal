@@ -82,5 +82,8 @@
         "numeric": "cpp",
         "random": "cpp",
         "unordered_set": "cpp"
+    },
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "c:/vcpkg/scripts/buildsystems/vcpkg.cmake"
     }
 }
