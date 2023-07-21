@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <opencv2/opencv.hpp>
+#include <curl/curl.h>
 
 #include <BarcodeFormat.h>
 #include <DecodeHints.h>
