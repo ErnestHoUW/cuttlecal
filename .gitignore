@@ -9,6 +9,7 @@ CMakeLists.txt.user
 *.lib
 *.d
 *.a
+*.csv
 compile_commands.json
 
 # dependencies
