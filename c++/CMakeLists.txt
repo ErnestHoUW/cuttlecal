@@ -16,7 +16,8 @@ set(CMAKE_TOOLCHAIN_FILE C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
 # Find required packages
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
-find_package(CURL REQUIRED)
+find_package(httplib CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 # find_package(ZXing CONFIG REQUIRED)
 
 # Include directories
@@ -28,7 +29,7 @@ LINK_DIRECTORIES(C:/vcpkg/installed/x64-windows/lib)
 add_subdirectory(zxing-cpp) 
 
 # Link against the necessary libraries
-target_link_libraries(cuttlecal ${OpenCV_LIBS} ${CMAKE_THREAD_LIBS_INIT} ZXing::ZXing CURL::libcurl) # Updated line
+target_link_libraries(cuttlecal ${OpenCV_LIBS} ${CMAKE_THREAD_LIBS_INIT} ZXing::ZXing httplib::httplib nlohmann_json::nlohmann_json) # Updated line
 
 # Set up CPack for packaging
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

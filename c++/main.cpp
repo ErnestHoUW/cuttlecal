@@ -1,7 +1,8 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <curl/curl.h>
+#include <httplib.h>
+#include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 
 #include <BarcodeFormat.h>
@@ -22,6 +23,8 @@ int frame_width;;
 SyncQueue<Mat> frameQueue;
 SyncQueue<Measurement> measurementQueue;
 SyncQueue<Measurement> debugQueue;
+
+string client_url = "http://localhost:3001";
 
 void producer() {
     Mat frame;
@@ -106,7 +109,23 @@ void consumer(int id) {
 }
 
 int main() {
-    cout<<"hello"<<endl;
+    // httplib::Client cli("http://0.0.0.0:3000");
+
+    // nlohmann::json j;
+    // j["number"] = 5;
+    // j["colors"] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}, {13, 14, 15}};
+
+    // auto res = cli.Post("/colors", j.dump(), "application/json");
+
+    // if (res) {
+    //     if (res->status == 200) {
+    //         std::cout << res->body << std::endl;
+    //     } else {
+    //         std::cout << "Failed to post JSON, status code: " << res->status << std::endl;
+    //     }
+    // } else {
+    //     std::cout << "Failed to connect to the server or other network error occurred." << std::endl;
+    // }
     thread producerThread(producer);
     cout<<"hello"<<endl;
     const uint8_t numConsumers = 16;

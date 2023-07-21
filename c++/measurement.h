@@ -66,7 +66,9 @@ class Measurement {
     static void set_gray_correction_layer(VideoCapture &stream) {
         tuple<Mat, Scalar> result = create_gray_correction_layer(stream);
         gray_correction_layer = get<0>(result);
-        acceptable_stddev = get<1>(result)*1.5;
+        
+        acceptable_stddev = get<1>(result)*1.25;
+        cout<<get<1>(result)<<" < " <<acceptable_stddev<<endl;
     }
     static Scalar get_acceptable_stddev() {
         return acceptable_stddev;

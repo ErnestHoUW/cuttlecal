@@ -46,12 +46,12 @@ image_array = np.full((800, 800, 3), rgb_tuple, dtype=np.uint8)
 bgr_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
 cv2.imshow('QR Code', bgr_image)
 cv2.waitKey(10000)  
-for i in tqdm(range(100)):
+for i in tqdm(range(50)):
     rand_color=generate_random_color()
 
     img = create_qr(f"{rand_color[2]},{rand_color[1]},{rand_color[0]}", rand_color) #convert from bgr to rgb
     cv2.imshow('QR Code', img)
-    cv2.waitKey(50)
+    cv2.waitKey(100)
 
 
 img = create_qr(f"end", (255,255,255))
