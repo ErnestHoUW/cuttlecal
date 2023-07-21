@@ -1,5 +1,6 @@
 #include "image_processing.h"
-Mat get_gray_correction_layer(VideoCapture &stream) {
+
+tuple<Mat,Scalar> create_gray_correction_layer(VideoCapture &stream) {
     // Gray Uniformity Correction
     Mat frame;
     stream.read(frame);
@@ -7,9 +8,16 @@ Mat get_gray_correction_layer(VideoCapture &stream) {
     int frame_height = frame.rows;
     Mat average_gray_frame = Mat(frame_height, frame_width, CV_32FC3, Scalar(0, 0, 0));
     int amount_of_gray_frames = 100;
+    Scalar variance_sum=Scalar(0.0,0.0,0.0);
     for (int i = 1; i <= amount_of_gray_frames; i++) {
         stream.read(frame);
-        imshow("Webcam Ouptut1", frame);
+        Mat mean;
+        Scalar variance;
+        meanStdDev(frame,mean,variance);
+        for (int i = 0; i < 3; i++){
+            variance_sum[i]+=variance[i];
+        }
+        
         for (int x = 0; x < frame_width; x++) {
             for (int y = 0; y < frame_height; y++) {
                 Vec3b measured_color = frame.at<Vec3b>(y, x);
@@ -17,8 +25,6 @@ Mat get_gray_correction_layer(VideoCapture &stream) {
                 average_gray_frame.at<Vec3f>(y, x) = Vec3f(current_gray[0] + measured_color[0], current_gray[1] + measured_color[1], current_gray[2] + measured_color[2]);
             }
         }
-        frame.release();
-        waitKey(1);
     }
 
     for (int y = 0; y < frame_height; y++) {
@@ -26,6 +32,10 @@ Mat get_gray_correction_layer(VideoCapture &stream) {
             Vec3f current_gray = average_gray_frame.at<Vec3f>(y, x);
             average_gray_frame.at<Vec3f>(y, x) = Vec3f(current_gray[0] / amount_of_gray_frames, current_gray[1] / amount_of_gray_frames, current_gray[2] / amount_of_gray_frames);
         }
+    }
+    Scalar variance=Scalar(0.0,0.0,0.0);
+    for (int i = 0; i < 3; i++){
+            variance[i]=variance_sum[i]/amount_of_gray_frames;
     }
 
     Scalar mean_gray = mean(average_gray_frame);
@@ -39,8 +49,9 @@ Mat get_gray_correction_layer(VideoCapture &stream) {
             gray_correction_layer.at<int>(y, x) = (int)mean_brightness - (int)round((current_gray[0] + current_gray[1] + current_gray[2]) / 3.0);
         }
     }
+    
 
-    return gray_correction_layer;
+    return make_tuple(gray_correction_layer,variance);
 }
 
 Mat correct_gray_uniformity(Mat &frame, Mat &gray_correction_layer) {
@@ -58,20 +69,9 @@ Mat correct_gray_uniformity(Mat &frame, Mat &gray_correction_layer) {
     }
     return adjusted_frame;
 }
-
-Mat get_average_color_matrix(Mat &frame, vector<Point> quadPoints) {
-    int frame_width = frame.cols;
-    int frame_height = frame.rows;
-    if (quadPoints.size() < 3) {
-        cerr << "Not enough points to form a polygon" << endl;
-        return frame;
-    }
-
-    cv::Mat adjusted_frame = cv::Mat(frame_height, frame_width, CV_8UC3, cv::Scalar(0, 0, 0));
-    cv::Mat mask = cv::Mat::ones(frame_height, frame_width, CV_8U);
-
-    cv::Point2f centroid(0.f, 0.f);
-    for (const cv::Point &point : quadPoints) {
+vector<Point> scalePoints(vector<Point> quadPoints, int frame_width, int frame_height) {
+    Point2f centroid(0.f, 0.f);
+    for (const Point &point : quadPoints) {
         centroid.x += point.x;
         centroid.y += point.y;
     }
@@ -81,7 +81,7 @@ Mat get_average_color_matrix(Mat &frame, vector<Point> quadPoints) {
     double scale = 1.2;  // scaling factor
 
     // Create a new vector for storing scaled points
-    vector<cv::Point> scaledQuadPoints;
+    vector<Point> scaledQuadPoints;
 
     // Scale each point relative to the centroid
     for (auto const &point : quadPoints) {
@@ -89,26 +89,40 @@ Mat get_average_color_matrix(Mat &frame, vector<Point> quadPoints) {
         int newY = static_cast<int>(centroid.y + scale * (point.y - centroid.y));
         newX = max(0, min(newX, frame_width - 1));
         newY = max(0, min(newY, frame_height - 1));
-        scaledQuadPoints.push_back(cv::Point(newX, newY));
+        scaledQuadPoints.push_back(Point(newX, newY));
+    }
+    return scaledQuadPoints;
+}
+
+Mat average_color_matrix(Mat &frame, vector<Point> quadPoints) {
+    int frame_width = frame.cols;
+    int frame_height = frame.rows;
+    if (quadPoints.size() < 3) {
+        cerr << "Not enough points to form a polygon" << endl;
+        return frame;
     }
 
+    Mat adjusted_frame = Mat(frame_height, frame_width, CV_8UC3, Scalar(0, 0, 0));
+    Mat mask = Mat(frame_height, frame_width, CV_8U,Scalar(255));
+
     // Use the scaled points for operations
-    vector<vector<cv::Point>> polygons;
-    polygons.push_back(scaledQuadPoints);
-    cv::fillPoly(mask, polygons, 255);
+    vector<vector<Point>> polygons;
+    polygons.push_back(scalePoints(quadPoints, frame_width, frame_height));
+    fillPoly(mask, polygons, 0);
 
-    cv::Scalar mean_color = cv::mean(frame, mask);  // Calculate mean using the mask
+    Scalar mean_color = mean(frame, mask);  // Calculate mean using the mask
 
-    cv::Mat meanImage(frame_height, frame_width, CV_8UC3, cv::Scalar(0, 0, 0));
-    cv::threshold(mask, mask, 127, 255, cv::THRESH_BINARY);
-    cv::Scalar mean_color_rounded = cv::Scalar(
+    Mat meanImage(frame_height, frame_width, CV_8UC3, Scalar(0, 0, 0));
+    threshold(mask, mask, 127, 255, THRESH_BINARY);
+    Scalar mean_color_rounded = Scalar(
         static_cast<int>(round(mean_color[0])),
         static_cast<int>(round(mean_color[1])),
         static_cast<int>(round(mean_color[2])));
+    bitwise_not(mask,mask);
     meanImage.setTo(mean_color_rounded, mask);
 
-    cv::bitwise_and(frame, frame, adjusted_frame, ~mask);  // Keep parts of the original frame that are not masked
-    cv::bitwise_or(adjusted_frame, meanImage, adjusted_frame);
+    bitwise_and(frame, frame, adjusted_frame, ~mask);  // Keep parts of the original frame that are not masked
+    bitwise_or(adjusted_frame, meanImage, adjusted_frame);
 
     adjusted_frame.convertTo(adjusted_frame, CV_8UC3);
 
@@ -117,17 +131,77 @@ Mat get_average_color_matrix(Mat &frame, vector<Point> quadPoints) {
     return adjusted_frame;
 }
 
-Scalar get_average_color(Mat &frame, vector<Point> quadPoints) {
+Scalar average_color(Mat &frame, vector<Point> quadPoints) {
     int frame_width = frame.cols;
     int frame_height = frame.rows;
     Mat adjusted_frame = Mat(frame_height, frame_width, CV_8UC3, Scalar(0, 0, 0));
-    Mat mask = Mat::ones(frame_height, frame_width, CV_8U);
+    Mat mask = Mat(frame_height, frame_width, CV_8U,Scalar(255));
 
-    vector<vector<cv::Point>> polygons;
-    polygons.push_back(quadPoints);
-    cv::fillPoly(mask, polygons, 255);
+    vector<vector<Point>> polygons;
+    polygons.push_back(scalePoints(quadPoints, frame_width, frame_height));
+    fillPoly(mask, polygons, 0);
 
-    Scalar mean_color = mean(frame, mask);  // Calculate mean using the mask
+    Mat rgb_frame;
+    cvtColor(frame, rgb_frame, COLOR_BGR2RGB);
+
+    Scalar mean_color = mean(rgb_frame, mask);  // Calculate mean using the mask
 
     return mean_color;
+}
+
+// Scalar confidence_interval_size(Mat &frame, vector<Point> quadPoints) {
+//     int frame_width = frame.cols;
+//     int frame_height = frame.rows;
+//     Mat adjusted_frame = Mat(frame_height, frame_width, CV_8UC3, Scalar(0, 0, 0));
+//     Mat mask = Mat(frame_height, frame_width, CV_8U,Scalar(255));
+
+//     vector<vector<Point>> polygons;
+//     polygons.push_back(scalePoints(quadPoints, frame_width, frame_height));
+//     fillPoly(mask, polygons, 0);
+
+//     Mat rgb_frame;
+//     cvtColor(frame, rgb_frame, COLOR_BGR2RGB);
+
+//     Scalar mean_color;
+//     Scalar stddev_color;
+//     meanStdDev(rgb_frame, mean_color, stddev_color, mask);
+    
+
+//     bitwise_not(mask,mask);
+//     int mask_size = countNonZero(mask);
+//     int frame_size = frame_width * frame_height;
+//     int n = frame_size - mask_size;
+//     double sqrt_n = sqrt(n);
+//     cout<<stddev_color<<" , "<<n<<endl;
+
+//     Scalar confidence_interval_size = Scalar(0.0, 0.0, 0.0);
+
+//     for (int i = 0; i < 3; i++) {
+//         double lower_limit = mean_color[i] - (z * (stddev_color[i] / sqrt_n));
+//         double upper_limit = mean_color[i] + (z * (stddev_color[i] / sqrt_n));
+//         confidence_interval_size[i] = upper_limit - lower_limit;
+//     }
+//     cout << confidence_interval_size << endl;
+
+//     return confidence_interval_size;
+// }
+
+Scalar standard_deviation(Mat &frame, vector<Point> quadPoints) {
+    int frame_width = frame.cols;
+    int frame_height = frame.rows;
+    Mat adjusted_frame = Mat(frame_height, frame_width, CV_8UC3, Scalar(0, 0, 0));
+    Mat mask = Mat(frame_height, frame_width, CV_8U,Scalar(255));
+
+    vector<vector<Point>> polygons;
+    polygons.push_back(scalePoints(quadPoints, frame_width, frame_height));
+    fillPoly(mask, polygons, 0);
+
+    Mat rgb_frame;
+    cvtColor(frame, rgb_frame, COLOR_BGR2RGB);
+
+    Scalar mean_color;
+    Scalar stddev_color;
+    meanStdDev(rgb_frame, mean_color, stddev_color, mask);
+
+    return stddev_color;
 }
