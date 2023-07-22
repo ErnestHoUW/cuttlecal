@@ -37,39 +37,62 @@ const ColourChangeScreen = ({ apiUrl }) => {
     }, []);
 
     useEffect(() => {
-        const makeAPICall = async () => {
-            const response = await axios.post(apiUrl);
-            return response.data;
-        };
 
-        const waitForAPICall = async () => {
-            let data;
-            setShowQR(false)
-            while (true) {
-                try {
-                    data = await makeAPICall();
-                    setShowQR(true)
-                    break;
-                } catch (error) {
-                    // Handle error if needed
-                    console.error(error);
+        async function makeRequest(url, delay = 1000) {
+           try {
+                setShowQR(true)
+                const response = await axios.get(url);
+                const r = response.data
+                if (Array.isArray(r.colors)) {
+                    setColourList(r.colors);
+                    setTimeInterval(r.number);
+                    console.log(r.colors);
+                    console.log(r.number);
+                } else {
+                    console.error("Data received is not an array");
                 }
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+              } catch (error) {
+                console.error('Error:', error);
+                // If the request fails, try again after a delay
+                setTimeout(() => makeRequest(url, delay), delay);
             }
-
-            if (Array.isArray(data.colors)) {
-                setColourList(data.colors);
-                setTimeInterval(data.number);
-                console.log(data.colors);
-                console.log(data.number);
-            } else {
-                console.error("Data received is not an array");
-            }
-        };
-
-        if (isStarted) {
-            waitForAPICall();
         }
+        if (isStarted) {
+            makeRequest(apiUrl)
+        }
+        // const makeAPICall = async () => {
+        //     const response = await axios.post(apiUrl);
+        //     return response.data;
+        // };
+        //
+        // const waitForAPICall = async () => {
+        //     let data;
+        //     setShowQR(false)
+        //     while (true) {
+        //         try {
+        //             data = await makeAPICall();
+        //             setShowQR(true)
+        //             break;
+        //         } catch (error) {
+        //             // Handle error if needed
+        //             console.error(error);
+        //         }
+        //         await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+        //     }
+        //
+        //     if (Array.isArray(data.colors)) {
+        //         setColourList(data.colors);
+        //         setTimeInterval(data.number);
+        //         console.log(data.colors);
+        //         console.log(data.number);
+        //     } else {
+        //         console.error("Data received is not an array");
+        //     }
+        // };
+        //
+        // if (isStarted) {
+        //     waitForAPICall();
+        // }
     }, [apiUrl, isStarted]);
 
     useEffect(() => {
@@ -86,6 +109,7 @@ const ColourChangeScreen = ({ apiUrl }) => {
                     if (pointer >= colourList.length - 1) {
                         setIsStarted(false); // Stop the color change
                         setBgColor('rgb(255, 255, 255)'); // Set the screen back to white
+                        setColourList([])
                         return 0; // Reset the pointer
                     }
 
