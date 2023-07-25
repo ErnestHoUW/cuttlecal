@@ -6,6 +6,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
 import GraphVisualizer from "./3DGraphVisualizer"
 
+const current_ip = window.location.host.split(":")[0];
+console.log(current_ip);
+
 const App = () => {
   return (
     <Router>
@@ -15,7 +18,7 @@ const App = () => {
           <Route 
             path="/colour-calibration" 
             render={(props) => (
-              <ColourChangeScreen {...props} apiUrl="http://localhost:3001" />
+              <ColourChangeScreen {...props} apiUrl={`http://${current_ip}:3001`} />
             )}
           />
           <Route 

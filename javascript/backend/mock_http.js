@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Allow cross-origin requests
 app.use(cors({
-    origin: 'http://localhost:3000' // This is the React app's URL
+    origin: '*' // This is the React app's URL
 }));
 
 // Function to generate random RGB color
