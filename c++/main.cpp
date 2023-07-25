@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <httplib.h>
+#include <random>
 #include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -26,6 +27,27 @@ SyncQueue<Measurement> debugQueue;
 
 string client_url = "http://localhost:3001";
 
+nlohmann::json generate_colors_array(int amount){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 255);
+
+    // Create the JSON object
+    nlohmann::json j;
+
+    // Generate the random colors and add them to the JSON object
+    nlohmann::json colorsArray = nlohmann::json::array();
+    for (int i = 0; i < amount; i++) {
+        int red = dis(gen);
+        int green = dis(gen);
+        int blue = dis(gen);
+        colorsArray.push_back({red, green, blue});
+    }
+    j["colors"] = colorsArray;
+
+    return colorsArray;
+}
+
 void producer() {
     Mat frame;
     VideoCapture stream(0, CAP_DSHOW);
@@ -39,6 +61,26 @@ void producer() {
     }
 
     Measurement::set_gray_correction_layer(stream);
+
+    //tell calibration server to listen for /addColors
+    httplib::Client cli(client_url);
+
+    //addColors    
+
+    nlohmann::json j;
+    j["number"] = 200;
+    j["colors"] = generate_colors_array(50);
+    auto res = cli.Post("/addColors", j.dump(), "application/json");
+
+    if (res) {
+        if (res->status == 200) {
+            cout << res->body << endl;
+        } else {
+            cout << "Failed to post JSON, status code: " << res->status << endl;
+        }
+    } else {
+        cout << "Failed to connect to the server or other network error occurred." << endl;
+    }
 
     while (!frameQueue.stopped()) {
         stream.read(frame);
@@ -68,6 +110,8 @@ void consumer(int id) {
         
         if (qrcode.isValid()) {
             string qr_code_data=qrcode.text();
+
+            cout<< qr_code_data<<endl;
             
             if (qr_code_data == "gray") {
                 continue;
@@ -109,23 +153,6 @@ void consumer(int id) {
 }
 
 int main() {
-    // httplib::Client cli("http://0.0.0.0:3000");
-
-    // nlohmann::json j;
-    // j["number"] = 5;
-    // j["colors"] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}, {13, 14, 15}};
-
-    // auto res = cli.Post("/colors", j.dump(), "application/json");
-
-    // if (res) {
-    //     if (res->status == 200) {
-    //         std::cout << res->body << std::endl;
-    //     } else {
-    //         std::cout << "Failed to post JSON, status code: " << res->status << std::endl;
-    //     }
-    // } else {
-    //     std::cout << "Failed to connect to the server or other network error occurred." << std::endl;
-    // }
     thread producerThread(producer);
     cout<<"hello"<<endl;
     const uint8_t numConsumers = 16;
@@ -153,6 +180,7 @@ int main() {
     measurement_csv << "\"Displayed Color Code\",\"Measured Color Code\"\n"; // the column headers
     
     int i=0;
+    string folderName = "measurements";
     while(true){
         pair<bool, Measurement> result = measurementQueue.pop();
         if (!result.first) {
@@ -162,7 +190,7 @@ int main() {
         Measurement measurement=result.second;
         Scalar color_code = measurement.get_displayed_color_code();
         measurement_csv << measurement.get_csv_measurement() <<"\n";
-        imwrite("measurement"+to_string(i)+".png", measurement.get_processed_frame());
+        imwrite("measurements/measurement"+to_string(i)+".png", measurement.get_processed_frame());
         i++;
     }
     i=0;
@@ -174,7 +202,7 @@ int main() {
         
         Measurement measurement=result.second;
         
-        imwrite("Debug"+to_string(i)+".png", measurement.get_processed_frame());
+        imwrite("measurements/debug"+to_string(i)+".png", measurement.get_processed_frame());
         i++;
     }
     measurement_csv.close();

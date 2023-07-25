@@ -35,3 +35,7 @@ target_link_libraries(cuttlecal ${OpenCV_LIBS} ${CMAKE_THREAD_LIBS_INIT} ZXing::
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
+
+install(TARGETS cuttlecal
+        RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin
+)

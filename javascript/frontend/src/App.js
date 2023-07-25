@@ -15,7 +15,7 @@ const App = () => {
           <Route 
             path="/colour-calibration" 
             render={(props) => (
-              <ColourChangeScreen {...props} apiUrl="http://localhost:3000/colors" />
+              <ColourChangeScreen {...props} apiUrl="http://localhost:3001" />
             )}
           />
           <Route 

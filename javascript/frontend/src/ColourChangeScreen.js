@@ -18,6 +18,7 @@ const ColourChangeScreen = ({ apiUrl }) => {
     const elementRef = useRef(null); 
     const [isStarted, setIsStarted] = useState(false); 
     const [showQR, setShowQR] = useState(true);
+    const [endQR, setEndQR] = useState(false);
 
     const updateWindowDimensions = () => {
         setWindowSize({ width: window.innerWidth, height: window.innerHeight });
@@ -31,6 +32,14 @@ const ColourChangeScreen = ({ apiUrl }) => {
         }
     };
 
+    const startCalibration = () => {
+        try {
+                axios.get(apiUrl+"/startCalibration");
+            } catch (error) {
+                console.error('Error:', error);
+            }
+    };
+
     useEffect(() => {
         window.addEventListener('resize', updateWindowDimensions);
         return () => window.removeEventListener('resize', updateWindowDimensions);
@@ -40,7 +49,6 @@ const ColourChangeScreen = ({ apiUrl }) => {
 
         async function makeRequest(url, delay = 1000) {
            try {
-                setShowQR(true)
                 const response = await axios.get(url);
                 const r = response.data
                 if (Array.isArray(r.colors)) {
@@ -58,41 +66,9 @@ const ColourChangeScreen = ({ apiUrl }) => {
             }
         }
         if (isStarted) {
-            makeRequest(apiUrl)
+            setShowQR(false)
+            makeRequest(apiUrl+"/colors")
         }
-        // const makeAPICall = async () => {
-        //     const response = await axios.post(apiUrl);
-        //     return response.data;
-        // };
-        //
-        // const waitForAPICall = async () => {
-        //     let data;
-        //     setShowQR(false)
-        //     while (true) {
-        //         try {
-        //             data = await makeAPICall();
-        //             setShowQR(true)
-        //             break;
-        //         } catch (error) {
-        //             // Handle error if needed
-        //             console.error(error);
-        //         }
-        //         await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
-        //     }
-        //
-        //     if (Array.isArray(data.colors)) {
-        //         setColourList(data.colors);
-        //         setTimeInterval(data.number);
-        //         console.log(data.colors);
-        //         console.log(data.number);
-        //     } else {
-        //         console.error("Data received is not an array");
-        //     }
-        // };
-        //
-        // if (isStarted) {
-        //     waitForAPICall();
-        // }
     }, [apiUrl, isStarted]);
 
     useEffect(() => {
@@ -102,14 +78,22 @@ const ColourChangeScreen = ({ apiUrl }) => {
         }
     }, [pointer, colourList]);
 
+    let qrValue = JSON.stringify(currentColour).slice(1,-1);
+    if (endQR){
+        qrValue = "end"
+    }
+
     useEffect(() => {
         if (isStarted && colourList.length > 0) {
+            setShowQR(true)
+            setEndQR(false)
             const intervalId = setInterval(() => {
                 setPointer(pointer => {
                     if (pointer >= colourList.length - 1) {
                         setIsStarted(false); // Stop the color change
-                        setBgColor('rgb(255, 255, 255)'); // Set the screen back to white
-                        setColourList([])
+                        setBgColor('rgb(100, 100, 100)'); // Set the screen back to white
+                        setColourList([]);
+                        setEndQR(true);
                         return 0; // Reset the pointer
                     }
 
@@ -121,7 +105,7 @@ const ColourChangeScreen = ({ apiUrl }) => {
         }
     }, [colourList.length, isStarted, timeInterval]);
 
-    let qrValue = JSON.stringify(currentColour);
+    
 
     return (
         <div
@@ -150,7 +134,8 @@ const ColourChangeScreen = ({ apiUrl }) => {
                     <MyNavbar></MyNavbar>
                     <Button 
                         onClick={() => { 
-                            setIsStarted(true); 
+                            setIsStarted(true);
+                            startCalibration();
                             setPointer(0); // Ensure starting from the first element
                         }} 
                         style={{ position: 'fixed', right: '2%', bottom: '20%', fontSize: '1.5vw', marginRight: '1.5vw' }}>
