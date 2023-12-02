@@ -6,10 +6,10 @@
 #include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 
-#include <BarcodeFormat.h>
-#include <DecodeHints.h>
-#include <TextUtfEncoding.h>
-#include <ReadBarcode.h>
+#include <ZXing/ReadBarcode.h>
+#include <ZXing/BarcodeFormat.h>
+#include <ZXing/DecodeHints.h>
+#include <ZXing/TextUtfEncoding.h>
 
 #include "syncqueue.h"
 #include "measurement.h"

@@ -1,0 +1,10 @@
+{
+    "name": "cuttlecal",
+    "version-string": "1.0",
+    "dependencies": [
+      "opencv4",
+      "nu-book-zxing-cpp",
+      "nlohmann-json",
+      "cpp-httplib"
+    ]
+  }

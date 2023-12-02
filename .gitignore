@@ -34,3 +34,4 @@ compile_commands.json
 javascript/frontend/npm-debug.log*
 javascript/frontend/yarn-debug.log*
 javascript/frontend/yarn-error.log*
+vcpkg_installed

@@ -145,8 +145,8 @@ if __name__ == '__main__':
     #                   np.linspace(0, 255, 256), 4096)
     # print("--- %s seconds ---" % (time.time() - t2))
     t3 = time.time()
-    rbf_interpolate_3(red_points, green_points, blue_points, red_values, green_values, blue_values,
-                      np.linspace(0, 255, 256))
+    rbf_interpolate_2(red_points, green_points, blue_points, red_values, green_values, blue_values,
+                      np.linspace(2, 254, 64), 1000)
     print("--- %s seconds ---" % (time.time() - t3))
 
 
