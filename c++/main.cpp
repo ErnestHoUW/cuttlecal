@@ -27,25 +27,22 @@ SyncQueue<Measurement> debugQueue;
 
 string client_url = "http://localhost:3001";
 
-nlohmann::json generate_colors_array(int amount){
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 255);
-
+nlohmann::json generate_colors_array(int step) {
     // Create the JSON object
     nlohmann::json j;
 
-    // Generate the random colors and add them to the JSON object
+    // Generate the color tuples and add them to the JSON object
     nlohmann::json colorsArray = nlohmann::json::array();
-    for (int i = 0; i < amount; i++) {
-        int red = dis(gen);
-        int green = dis(gen);
-        int blue = dis(gen);
-        colorsArray.push_back({red, green, blue});
+    for (int red = 0; red <= 255; red += step) {
+        for (int green = 0; green <= 255; green += step) {
+            for (int blue = 0; blue <= 255; blue += step) {
+                colorsArray.push_back({red, green, blue});
+            }
+        }
     }
     j["colors"] = colorsArray;
 
-    return colorsArray;
+    return j; // Return the entire JSON object
 }
 
 void producer() {
@@ -68,8 +65,8 @@ void producer() {
     //addColors    
 
     nlohmann::json j;
-    j["number"] = 200;
-    j["colors"] = generate_colors_array(50);
+    j["number"] = 200; // the delay between colors showing
+    j["colors"] = generate_colors_array(15);
     auto res = cli.Post("/addColors", j.dump(), "application/json");
 
     if (res) {
