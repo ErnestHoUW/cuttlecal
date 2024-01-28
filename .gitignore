@@ -13,7 +13,7 @@ CMakeLists.txt.user
 compile_commands.json
 
 # dependencies
-/javascript/backend/measurements/
+/measurements/*
 /javascript/frontend/node_modules
 /javascript/frontend/.pnp
 /javascript/frontend/.pnp.js

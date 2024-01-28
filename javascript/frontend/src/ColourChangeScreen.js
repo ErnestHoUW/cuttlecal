@@ -46,18 +46,19 @@ const ColourChangeScreen = ({ apiUrl }) => {
     }, []);
 
     useEffect(() => {
-
         async function makeRequest(url, delay = 1000) {
-           try {
+            try {
                 const response = await axios.get(url);
                 const r = response.data
+                console.log(response.data)
                 if (Array.isArray(r.colors)) {
                     setColourList(r.colors);
-                    setTimeInterval(r.number);
-                    console.log(r.colors);
-                    console.log(r.number);
+                    setTimeInterval(r.frame_length);
+                    // console.log(r.colors);
+                    console.log(r.frame_length);
                 } else {
-                    console.error("Data received is not an array");
+                    console.log("No colors in /colors");
+                    setTimeout(() => makeRequest(url, delay), delay);
                 }
               } catch (error) {
                 console.error('Error:', error);
@@ -65,11 +66,11 @@ const ColourChangeScreen = ({ apiUrl }) => {
                 setTimeout(() => makeRequest(url, delay), delay);
             }
         }
-        if (isStarted) {
+        if (colourList.length === 0 && isStarted ) {
             setShowQR(false)
             makeRequest(apiUrl+"/colors")
         }
-    }, [apiUrl, isStarted]);
+    }, [apiUrl, isStarted, colourList.length]);
 
     useEffect(() => {
         if (colourList.length > 0 && colourList[pointer]) {

@@ -21,10 +21,9 @@ using namespace std;
 
 int frame_height;
 int frame_width;
-int color_step = 15;
+int color_step = 50;
 vector<vector<vector<bool>>> processed_colors(256, vector<vector<bool>>(256, vector<bool>(256)));
 const uint8_t numConsumers = 16;
-const uint16_t color_sending_limit = 100;
 
 SyncQueue<Mat> frameQueue;
 SyncQueue<Measurement> measurementQueue;
@@ -36,26 +35,23 @@ string client_url = "http://localhost:3001";
 nlohmann::json generate_colors_array() {
     // Create the JSON object
     int step = color_step;
-    nlohmann::json j;
 
     // Generate the color tuples and add them to the JSON object
     nlohmann::json colorsArray = nlohmann::json::array();
     for (int red = 0; red <= 255; red += step) {
         for (int green = 0; green <= 255; green += step) {
             for (int blue = 0; blue <= 255; blue += step) {
-                if (colorsArray.size() >= color_sending_limit){
-                    j["colors"] = colorsArray;
-                    return j;
-                }
+                // if (colorsArray.size() >= color_sending_limit){
+                //     return colorsArray;
+                // }
                 if (!processed_colors[red][green][blue]) {
                     colorsArray.push_back({red, green, blue});
                 }
             }
         }
     }
-    j["colors"] = colorsArray;
 
-    return j; // Return the entire JSON object
+    return colorsArray; // Return the entire JSON object
 }
 
 void producer() {
@@ -78,8 +74,9 @@ void producer() {
     //addColors    
     // gotta send in chunks
     nlohmann::json j;
-    j["number"] = 200; // the delay between colors showing
+    j["frame_length"] = 100; // the delay between colors showing
     j["colors"] = generate_colors_array();
+    cout << j.dump() << endl;
     auto res = cli.Post("/addColors", j.dump(), "application/json");
 
     if (res) {
@@ -157,7 +154,7 @@ void consumer(int id) {
                 debugQueue.push(measurement);
             }
         } else {
-            //cout << "Consumer " << id << ": No QR" << endl;
+            cout << "Consumer " << id << ": No QR" << endl;
         }
     }
 }
@@ -175,14 +172,17 @@ int main(int argc, char* argv[]) {
         }
     }
     // Camera Settings
+    cout << "hello1" << endl;
     VideoCapture stream(0, CAP_DSHOW);
     stream.set(CAP_PROP_SETTINGS, 1);
+
+    
     
     //Prepare CSV
     ofstream measurement_csv("measurements.csv");
     measurement_csv << "\"Displayed Color Code\",\"Measured Color Code\"\n"; // the column headers
 
-    while(!generate_colors_array()["colors"].empty()){
+    while(!generate_colors_array().empty()){
         thread producerThread(producer);
         thread consumers[numConsumers];
 
