@@ -10,7 +10,6 @@ set(OpenCV_DIR "${VCPKG_INSTALLED_DIR}/x64-windows/share/opencv4")
 # Find packages
 find_package(OpenCV 4 REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-# httplib is a header-only library, so it does not need a find_package command
 find_package(ZXing REQUIRED) # This line finds ZXing
 
 # Include directories
@@ -22,5 +21,4 @@ add_executable(cuttlecal main.cpp image_processing.cpp)
 # Link libraries
 target_link_libraries(cuttlecal PRIVATE ${OpenCV_LIBS})
 target_link_libraries(cuttlecal PRIVATE nlohmann_json nlohmann_json::nlohmann_json)
-# Do not link httplib as it is a header-only library
 target_link_libraries(cuttlecal PRIVATE ZXing::Core ZXing::ZXing) # Linking ZXing library

@@ -5,6 +5,7 @@
 #include <random>
 #include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 #include <ZXing/ReadBarcode.h>
 #include <ZXing/BarcodeFormat.h>
@@ -19,16 +20,22 @@ using namespace ZXing;
 using namespace std;
 
 int frame_height;
-int frame_width;;
+int frame_width;
+int color_step = 15;
+vector<vector<vector<bool>>> processed_colors(256, vector<vector<bool>>(256, vector<bool>(256)));
+const uint8_t numConsumers = 16;
+const uint16_t color_sending_limit = 100;
 
 SyncQueue<Mat> frameQueue;
 SyncQueue<Measurement> measurementQueue;
 SyncQueue<Measurement> debugQueue;
 
+
 string client_url = "http://localhost:3001";
 
-nlohmann::json generate_colors_array(int step) {
+nlohmann::json generate_colors_array() {
     // Create the JSON object
+    int step = color_step;
     nlohmann::json j;
 
     // Generate the color tuples and add them to the JSON object
@@ -36,7 +43,13 @@ nlohmann::json generate_colors_array(int step) {
     for (int red = 0; red <= 255; red += step) {
         for (int green = 0; green <= 255; green += step) {
             for (int blue = 0; blue <= 255; blue += step) {
-                colorsArray.push_back({red, green, blue});
+                if (colorsArray.size() >= color_sending_limit){
+                    j["colors"] = colorsArray;
+                    return j;
+                }
+                if (!processed_colors[red][green][blue]) {
+                    colorsArray.push_back({red, green, blue});
+                }
             }
         }
     }
@@ -48,7 +61,7 @@ nlohmann::json generate_colors_array(int step) {
 void producer() {
     Mat frame;
     VideoCapture stream(0, CAP_DSHOW);
-    stream.set(CAP_PROP_SETTINGS, 1);
+    //stream.set(CAP_PROP_SETTINGS, 1);
 
     frame_height = (uint)stream.get(CAP_PROP_FRAME_HEIGHT);
     frame_width = (uint)stream.get(CAP_PROP_FRAME_WIDTH);
@@ -63,10 +76,10 @@ void producer() {
     httplib::Client cli(client_url);
 
     //addColors    
-
+    // gotta send in chunks
     nlohmann::json j;
     j["number"] = 200; // the delay between colors showing
-    j["colors"] = generate_colors_array(15);
+    j["colors"] = generate_colors_array();
     auto res = cli.Post("/addColors", j.dump(), "application/json");
 
     if (res) {
@@ -149,59 +162,74 @@ void consumer(int id) {
     }
 }
 
-int main() {
-    thread producerThread(producer);
-    cout<<"hello"<<endl;
-    const uint8_t numConsumers = 16;
-    thread consumers[numConsumers];
+int main(int argc, char* argv[]) {
 
-    for (uint8_t i = 0; i < numConsumers; ++i) {
-        consumers[i] = thread(consumer, i);
+    // Finding color step from command line arguements
+    for (int i = 1; i < argc; ++i) { // Start from 1 to skip the program name
+        std::string arg = argv[i];
+        if ((arg == "-c" || arg == "--color-step") && i + 1 < argc) { // Check for the flag and ensure there's an argument after it
+            color_step = std::atoi(argv[++i]); // Convert next argument to integer and increment i
+        } else {
+            std::cerr << "Unknown option: " << arg << std::endl;
+            return 1; // Return an error code
+        }
     }
-
-    producerThread.join();
-
-    for (auto& c : consumers) {
-        c.join();
-    }
-
-    measurementQueue.stop();
-    debugQueue.stop();
-
-    destroyAllWindows();
-
-    cout<< "hihi done" <<endl;
-    //export measurments to csv
-    ofstream measurement_csv("measurements.csv");
-
-    measurement_csv << "\"Displayed Color Code\",\"Measured Color Code\"\n"; // the column headers
+    // Camera Settings
+    VideoCapture stream(0, CAP_DSHOW);
+    stream.set(CAP_PROP_SETTINGS, 1);
     
-    int i=0;
-    string folderName = "measurements";
-    while(true){
-        pair<bool, Measurement> result = measurementQueue.pop();
-        if (!result.first) {
-            break;  // No more values to consume
+    //Prepare CSV
+    ofstream measurement_csv("measurements.csv");
+    measurement_csv << "\"Displayed Color Code\",\"Measured Color Code\"\n"; // the column headers
+
+    while(!generate_colors_array()["colors"].empty()){
+        thread producerThread(producer);
+        thread consumers[numConsumers];
+
+        for (uint8_t i = 0; i < numConsumers; ++i) {
+            consumers[i] = thread(consumer, i);
         }
-        
-        Measurement measurement=result.second;
-        Scalar color_code = measurement.get_displayed_color_code();
-        measurement_csv << measurement.get_csv_measurement() <<"\n";
-        imwrite("measurements/measurement"+to_string(i)+".png", measurement.get_processed_frame());
-        i++;
-    }
-    i=0;
-    while(true){
-        pair<bool, Measurement> result = debugQueue.pop();
-        if (!result.first) {
-            break;  // No more values to consume
+
+        producerThread.join();
+
+        for (auto& c : consumers) {
+            c.join();
         }
-        
-        Measurement measurement=result.second;
-        
-        imwrite("measurements/debug"+to_string(i)+".png", measurement.get_processed_frame());
-        i++;
+
+        measurementQueue.stop();
+        debugQueue.stop();
+
+        destroyAllWindows();
+
+        cout<< "hihi done" <<endl;
+        //export measurments to csv
+        int i=0;
+        while(!measurementQueue.empty()){
+            pair<bool, Measurement> result = measurementQueue.pop();
+            
+            Measurement measurement=result.second;
+            Scalar color_code = measurement.get_displayed_color_code();
+            // Mark that this color has been successfully captured
+            processed_colors[(int)color_code[0]][(int)color_code[1]][(int)color_code[2]] = true;
+            measurement_csv << measurement.get_csv_measurement() <<"\n";
+            imwrite("measurements/measurement"+to_string(i)+".png", measurement.get_processed_frame());
+            i++;
+        }
+        i=0;
+        while(!debugQueue.empty()){
+            pair<bool, Measurement> result = debugQueue.pop();
+            
+            Measurement measurement=result.second;
+            
+            imwrite("measurements/debug"+to_string(i)+".png", measurement.get_processed_frame());
+            i++;
+        }
+        // Reset the queues
+        frameQueue.reset();
+        measurementQueue.reset();
+        debugQueue.reset();
     }
+
     measurement_csv.close();
 
     return 0;

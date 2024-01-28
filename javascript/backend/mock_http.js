@@ -47,6 +47,7 @@ app.get('/colors', (req, res) => {
 })
 
 app.post('/addColors', (req, res) => {
+  console.log(req.body.colors)
   colorsArray.push(...req.body.colors)
   number = req.body.number
 
@@ -59,7 +60,12 @@ const unlinkAsync = promisify(fs.unlink);
 app.get('/startCalibration', async (req, res) => {
   try {
     console.log("Starting binary");
-    const folderName = 'measurements'; // Replace 'myFolder' with the desired folder name
+    const folderName = 'measurements';
+
+    // Check if the folder exists, create it if it doesn't
+    if (!fs.existsSync(folderName)) {
+      fs.mkdirSync(folderName, { recursive: true }); // 'recursive: true' ensures that the directory is created along with any necessary subdirectories
+    }
 
     const files = await readdirAsync(folderName);
 
@@ -67,7 +73,8 @@ app.get('/startCalibration', async (req, res) => {
       await unlinkAsync(path.join(folderName, file));
     }
 
-    const myCppBinaryProcess = spawn('cuttlecal.exe');
+    const cuttlecalPath = path.join('javascript', 'backend', 'calibrator', 'cuttlecal.exe');
+    const myCppBinaryProcess = spawn(cuttlecalPath);
     myCppBinaryProcess.on('error', (err) => {
       console.error('Error while starting the binary:', err);
       res.status(500).json({ error: 'Internal server error' });

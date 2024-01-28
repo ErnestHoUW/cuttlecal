@@ -30,7 +30,6 @@ public:
         return {true, val};
     }
 
-    // Adding empty() function
     bool empty() {
         lock_guard<mutex> lock(m);
         return q.empty();
@@ -45,5 +44,14 @@ public:
     bool stopped() {
         lock_guard<mutex> lock(m);
         return stopFlag;
+    }
+
+    void reset() {
+        unique_lock<mutex> lock(m);
+        while (!q.empty()) {
+            q.pop();
+        }
+        stopFlag = false;
+        cv.notify_all();
     }
 };

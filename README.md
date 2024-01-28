@@ -3,8 +3,9 @@ This is our Fourth Year Design Project
 
 ## C++ Setup
 ## CMake
-1. Download the installer here
+1. Download the installer here https://cmake.org/download/
 2. Make sure to check add to PATH for all users
+
 
 ## Install Visual Studio Build Tools
 1. Install 
@@ -14,7 +15,7 @@ This is our Fourth Year Design Project
 ## vcpkg
 2. Clone vcpkg in c:\
 ```
-git clone https://github.com/Microsoftvcpkg.git
+git clone https://github.com/Microsoft/vcpkg.git
 ```
 1. Install vcpkg
 ```
@@ -22,8 +23,9 @@ git clone https://github.com/Microsoftvcpkg.git
 ```
 1. Install dependencies
 ```
-cd c++
+cd cuttlecal/c++
 vcpkg integrate install
+vcpkg install
 ```
 
 ## Install C++ Extensions on VSCode
@@ -33,9 +35,8 @@ vcpkg integrate install
 - CMake Tools
 
 ## Configure Tool Chain
-1. Press `ctrl+shift+p`
-2. Open Preferences (json)
-3. Add
+1. Edit cuttlecal/.vscode/settings.json
+2. Add
 ```
    "cmake.configureSettings": {
         "CMAKE_TOOLCHAIN_FILE": "c:/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -44,4 +45,4 @@ vcpkg integrate install
 ## Select Compiler
 1. Press `ctrl+shift+p`
 2. Open CMake: Configure
-3. Choose 
+3. Choose amd64
