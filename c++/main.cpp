@@ -231,6 +231,18 @@ int main(int argc, char* argv[]) {
     }
 
     measurement_csv.close();
+    // Tell frontend the calibration is over
+    httplib::Client cli(client_url);
+    auto res = cli.Get("/endCalibration");
 
+    if (res) {
+        if (res->status == 200) {
+            cout << res->body << endl;
+        } else {
+            cout << "Failed to post JSON, status code: " << res->status << endl;
+        }
+    } else {
+        cout << "Failed to connect to the server or other network error occurred." << endl;
+    }
     return 0;
 }

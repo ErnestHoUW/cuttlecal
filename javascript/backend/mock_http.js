@@ -29,6 +29,7 @@ const generateRandomRGBColor = () => {
 
 let colorsArray = []
 let frameLength = 200
+let calibrationInProgress = false
 
 
 app.get('/colors', (req, res) => {
@@ -36,7 +37,6 @@ app.get('/colors', (req, res) => {
   // for(let i = 0; i < 50; i++){
   //   colorsArray.push(generateRandomRGBColor());
   // }
-
   if (colorsArray.length === 0){
     res.status(200).json({ message: 'No Colors Yet' })
     return
@@ -81,10 +81,24 @@ const terminateProcess = (process) => {
   });
 };
 
+app.get('/endCalibration', async (req, res) => {
+  if (calibrationInProgress) {
+    calibrationInProgress = false;
+    res.status(200).json({ message: 'Calibration started successfully' });
+  } else {
+    res.status(409).json({ message: 'Calibration not in progress' });
+  }
+})
+
+app.get('/calibrationStatus', async (req, res) => {
+    res.status(200).json({ calibrating: calibrationInProgress });
+})
+
 app.get('/startCalibration', async (req, res) => {
   try {
     console.log("Starting binary");
     const folderName = 'measurements';
+    calibrationInProgress = true;
 
     // Check if the folder exists, create it if it doesn't
     if (!fs.existsSync(folderName)) {

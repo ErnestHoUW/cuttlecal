@@ -91,7 +91,7 @@ const ColourChangeScreen = ({ apiUrl }) => {
             const intervalId = setInterval(() => {
                 setPointer(pointer => {
                     if (pointer >= colourList.length - 1) {
-                        setIsStarted(false); // Stop the color change
+                        //setIsStarted(false); // Stop the color change
                         setBgColor('rgb(100, 100, 100)'); // Set the screen back to white
                         setColourList([]);
                         setEndQR(true);
