@@ -30,6 +30,7 @@ const generateRandomRGBColor = () => {
 let colorsArray = []
 let frameLength = 200
 let calibrationInProgress = false
+let color_display_status = false;
 
 
 app.get('/colors', (req, res) => {
@@ -81,6 +82,27 @@ const terminateProcess = (process) => {
   });
 };
 
+// GET endpoint to return the color display status
+app.get('/colorDisplayStatus', (req, res) => {
+  res.status(200).json({ color_display_status });
+});
+
+// POST endpoint to update the color display status
+app.post('/colorDisplayStatus', (req, res) => {
+  const { status } = req.body; // Expect a JSON payload with a 'status' field
+  
+  // Validate the input to ensure it's a boolean
+  if (typeof status !== 'boolean') {
+    res.status(400).json({ error: 'Invalid status value. Status must be a boolean.' });
+    return;
+  }
+
+  color_display_status = status; // Update the color display status
+  res.status(200).json({ message: 'Color display status updated successfully' });
+});
+
+
+
 app.get('/endCalibration', async (req, res) => {
   if (calibrationInProgress) {
     calibrationInProgress = false;
@@ -121,6 +143,16 @@ app.get('/startCalibration', async (req, res) => {
     
     // Start a new process
     currentCalibrationProcess = spawn(cuttlecalPath);
+
+    // Capture standard output and display it
+    currentCalibrationProcess.stdout.on('data', (data) => {
+      console.log(`cuttlecal: ${data}`);
+    });
+
+    // Capture standard error output and display it
+    currentCalibrationProcess.stderr.on('data', (data) => {
+      console.error(`cuttlecal error: ${data}`);
+    });
     
     currentCalibrationProcess.on('error', (err) => {
       console.error('Error while starting the binary:', err);
@@ -138,6 +170,7 @@ app.get('/startCalibration', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 
 app.listen(port, () => {

@@ -1,10 +1,47 @@
-# For loop to print numbers from 0 to 255 for each step
-tuples = [(x, y, z) for x in range(0, 256, 15) 
-                    for y in range(0, 256, 15) 
-                    for z in range(0, 256, 15)]
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+from mpl_toolkits.mplot3d import Axes3D
 
-print(tuples)
+def plot_hsv_cylinder(fixed_value=1.0, radius=1.0, height=1.0, resolution=360):
+    # Create an array of angles from 0 to 2*pi
+    theta = np.linspace(0, 2 * np.pi, resolution)
 
-# (255/1)^3=16581375
-# (255/3)^3=614125
-# (255/5)^3=132651
+    # Create an array of radii from 0 to the specified radius
+    radii = np.linspace(0, radius, resolution)
+
+    # Create an array for the height (Value)
+    height = np.linspace(0, height, resolution)
+
+    # Create a meshgrid of theta, radii, and height
+    T, R, H = np.meshgrid(theta, radii, height)
+
+    # Convert polar coordinates to HSV colors
+    # Hue varies with theta, Saturation with radii, and Value with height
+    Hue = T / (2 * np.pi)
+    Sat = R / radius
+    Val = H / height.max()
+
+    # Convert HSV to RGB for plotting
+    RGB = mcolors.hsv_to_rgb(np.dstack((Hue, Sat, Val)))
+
+    # Create the 3D plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Plot each slice of the cylinder with a different Value
+    for i, val in enumerate(height):
+        ax.contourf(T[:, :, i], R[:, :, i], val * np.ones_like(T[:, :, i]), zdir='z', colors=RGB[:, :, i, :])
+
+    ax.set_xlim([0, 2*np.pi])
+    ax.set_ylim([0, radius])
+    ax.set_zlim([0, height.max()])
+    ax.set_xlabel('Hue')
+    ax.set_ylabel('Saturation')
+    ax.set_zlabel('Value')
+    ax.set_title('HSV Cylinder with Varying Value')
+
+    plt.show()
+
+# Plot the HSV cylinder with varying Value
+plot_hsv_cylinder()

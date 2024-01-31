@@ -40,6 +40,12 @@ class Measurement {
         // Converting string to int
         displayed_color_code = Scalar(stoi(r), stoi(g), stoi(b));
     }
+
+    Measurement(Mat &measured_frame) {
+        measured_frame = measured_frame.clone();
+        processed_frame = correct_gray_uniformity(measured_frame, gray_correction_layer);
+    }
+
     Scalar get_standard_deviation() {
         return stddev;
     }
@@ -69,6 +75,9 @@ class Measurement {
         
         acceptable_stddev = get<1>(result)*1.25;
         cout<<get<1>(result)<<" < " <<acceptable_stddev<<endl;
+    }
+    static bool isGrayCorrectionLayerSet() {
+        return !gray_correction_layer.empty();
     }
     static Scalar get_acceptable_stddev() {
         return acceptable_stddev;

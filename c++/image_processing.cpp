@@ -78,7 +78,7 @@ vector<Point> scalePoints(vector<Point> quadPoints, int frame_width, int frame_h
     centroid.x /= quadPoints.size();
     centroid.y /= quadPoints.size();
 
-    double scale = 1.2;  // scaling factor
+    double scale = 1.3;  // scaling factor
 
     // Create a new vector for storing scaled points
     vector<Point> scaledQuadPoints;

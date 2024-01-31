@@ -128,7 +128,7 @@ if __name__ == '__main__':
     #   the tuple is the actual recorded measurement color code
 
     t = time.time()
-    read_measurements('measurements.csv')
+    read_measurements('measurements_lights_off.csv')
     red_points = [rgb[0] for rgb in rgb_points]
     green_points = [rgb[1] for rgb in rgb_points]
     blue_points = [rgb[2] for rgb in rgb_points]
