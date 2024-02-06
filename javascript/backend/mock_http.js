@@ -123,46 +123,46 @@ app.get('/startCalibration', async (req, res) => {
     calibrationInProgress = true;
 
     // Check if the folder exists, create it if it doesn't
-    // if (!fs.existsSync(folderName)) {
-    //   fs.mkdirSync(folderName, { recursive: true });
-    // }
+    if (!fs.existsSync(folderName)) {
+      fs.mkdirSync(folderName, { recursive: true });
+    }
 
-    // const files = await readdirAsync(folderName);
+    const files = await readdirAsync(folderName);
 
-    // for (const file of files) {
-    //   await unlinkAsync(path.join(folderName, file));
-    // }
+    for (const file of files) {
+      await unlinkAsync(path.join(folderName, file));
+    }
 
-    // // Await the termination of the current process if it exists
-    // if (currentCalibrationProcess) {
-    //   console.log("Terminating existing cuttlecal.exe process");
-    //   await terminateProcess(currentCalibrationProcess); // Wait for the process to terminate
-    // }
+    // Await the termination of the current process if it exists
+    if (currentCalibrationProcess) {
+      console.log("Terminating existing cuttlecal.exe process");
+      await terminateProcess(currentCalibrationProcess); // Wait for the process to terminate
+    }
 
-    // const cuttlecalPath = path.join('javascript', 'backend', 'calibrator', 'cuttlecal.exe');
+    const cuttlecalPath = path.join('javascript', 'backend', 'calibrator', 'cuttlecal.exe');
     
-    // // Start a new process
-    // currentCalibrationProcess = spawn(cuttlecalPath);
+    // Start a new process
+    currentCalibrationProcess = spawn(cuttlecalPath);
 
-    // // Capture standard output and display it
-    // currentCalibrationProcess.stdout.on('data', (data) => {
-    //   console.log(`cuttlecal: ${data}`);
-    // });
+    // Capture standard output and display it
+    currentCalibrationProcess.stdout.on('data', (data) => {
+      console.log(`cuttlecal: ${data}`);
+    });
 
-    // // Capture standard error output and display it
-    // currentCalibrationProcess.stderr.on('data', (data) => {
-    //   console.error(`cuttlecal error: ${data}`);
-    // });
+    // Capture standard error output and display it
+    currentCalibrationProcess.stderr.on('data', (data) => {
+      console.error(`cuttlecal error: ${data}`);
+    });
     
-    // currentCalibrationProcess.on('error', (err) => {
-    //   console.error('Error while starting the binary:', err);
-    //   res.status(500).json({ error: 'Internal server error' });
-    // });
+    currentCalibrationProcess.on('error', (err) => {
+      console.error('Error while starting the binary:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    });
 
-    // currentCalibrationProcess.on('exit', (code, signal) => {
-    //   console.log(`Binary process exited with code ${code} and signal ${signal}`);
-    //   currentCalibrationProcess = null; // Reset the reference when the process exits
-    // });
+    currentCalibrationProcess.on('exit', (code, signal) => {
+      console.log(`Binary process exited with code ${code} and signal ${signal}`);
+      currentCalibrationProcess = null; // Reset the reference when the process exits
+    });
     
     await new Promise(r => setTimeout(r, 2000));
     calibrationInProgress = false;
