@@ -5,7 +5,10 @@
     justify-content: center;
 }
 
-.measure-button {
-    position: fixed;
+.button-container {
+    display: flex;
     bottom: 20%;
+    position: fixed;
+    gap: 15px;
 }
+

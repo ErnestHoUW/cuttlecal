@@ -5,12 +5,14 @@ import axios from "axios";
 import "../styles/Calibration.css";
 
 const url = `http://${window.location.host.split(":")[0]}:3001`;
+
 export default function Calibration(props) {
   const [color, setColor] = useState("127, 127, 127");
   const [calibrating, setCalibrating] = useState(false);
   const [calibrationColors, setCalibrationColors] = useState([]);
   const [index, setIndex] = useState(0);
   const [timeInterval, setTimeInterval] = useState(5);
+  const [csvAvailable, setCsvAvailable] = useState(false);
 
   function handleStartMeasurement() {
     try {
@@ -20,6 +22,23 @@ export default function Calibration(props) {
     }
     setCalibrating(true);
   }
+
+  async function downloadCSV() {
+    const response = await axios.get(`http://${window.location.host.split(":")[0]}:3001/downloadCSV`)
+    const data = response.data;
+
+    const blob = new Blob([data], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'measurements.csv';
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     if (!calibrating) return;
@@ -106,6 +125,24 @@ export default function Calibration(props) {
     calibrationColors,
   ]);
 
+  useEffect(() => {
+    async function pollCSV() {
+      const response = await axios.get(url + "/checkCSV");
+      const data = response.data;
+      if (data.result) {
+        setCsvAvailable(true);
+      }
+      else{
+        setCsvAvailable(false);
+        setTimeout(() => pollCSV(), 1000);
+      }
+    }
+    
+    if (!csvAvailable) {
+      pollCSV();
+    }
+  }, [csvAvailable])
+
   return (
     <div
       className="panel"
@@ -133,12 +170,19 @@ export default function Calibration(props) {
       </div>
 
       {!calibrating && (
-        <Button
-          className="measure-button"
-          onClick={() => handleStartMeasurement()}
-        >
-          Start Measuring
-        </Button>
+        <div className="button-container">
+          <Button
+            onClick={() => handleStartMeasurement()}
+          >
+            Start Measuring
+          </Button>
+          <Button
+            onClick={() => downloadCSV()}
+            disabled={!csvAvailable}
+          >
+            Download CSV
+          </Button>
+        </div>
       )}
     </div>
   );

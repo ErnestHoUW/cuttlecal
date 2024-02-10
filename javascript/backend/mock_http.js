@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Allow cross-origin requests
 app.use(cors({
-    origin: '*' // This is the React app's URL
+  origin: '*' // This is the React app's URL
 }));
 
 // Function to generate random RGB color
@@ -38,12 +38,12 @@ app.get('/colors', (req, res) => {
   // for(let i = 0; i < 50; i++){
   //   colorsArray.push(generateRandomRGBColor());
   // }
-  if (colorsArray.length === 0){
+  if (colorsArray.length === 0) {
     res.status(200).json({ message: 'No Colors Yet' })
     return
   }
   console.log(colorsArray)
-  res.status(200).json({frame_length: frameLength, colors: colorsArray});
+  res.status(200).json({ frame_length: frameLength, colors: colorsArray });
   colorsArray = []
 })
 
@@ -90,7 +90,7 @@ app.get('/colorDisplayStatus', (req, res) => {
 // POST endpoint to update the color display status
 app.post('/colorDisplayStatus', (req, res) => {
   const { status } = req.body; // Expect a JSON payload with a 'status' field
-  
+
   // Validate the input to ensure it's a boolean
   if (typeof status !== 'boolean') {
     res.status(400).json({ error: 'Invalid status value. Status must be a boolean.' });
@@ -113,7 +113,7 @@ app.get('/endCalibration', async (req, res) => {
 })
 
 app.get('/calibrationStatus', async (req, res) => {
-    res.status(200).json({ calibrating: calibrationInProgress });
+  res.status(200).json({ calibrating: calibrationInProgress });
 })
 
 app.get('/startCalibration', async (req, res) => {
@@ -140,7 +140,7 @@ app.get('/startCalibration', async (req, res) => {
     }
 
     const cuttlecalPath = path.join('javascript', 'backend', 'calibrator', 'cuttlecal.exe');
-    
+
     // Start a new process
     currentCalibrationProcess = spawn(cuttlecalPath);
 
@@ -153,7 +153,7 @@ app.get('/startCalibration', async (req, res) => {
     currentCalibrationProcess.stderr.on('data', (data) => {
       console.error(`cuttlecal error: ${data}`);
     });
-    
+
     currentCalibrationProcess.on('error', (err) => {
       console.error('Error while starting the binary:', err);
       res.status(500).json({ error: 'Internal server error' });
@@ -163,7 +163,7 @@ app.get('/startCalibration', async (req, res) => {
       console.log(`Binary process exited with code ${code} and signal ${signal}`);
       currentCalibrationProcess = null; // Reset the reference when the process exits
     });
-    
+
     res.status(200).json({ message: 'Calibration started successfully' });
   } catch (err) {
     console.error('Error while starting calibration:', err);
@@ -171,6 +171,24 @@ app.get('/startCalibration', async (req, res) => {
   }
 });
 
+app.get('/checkCSV', async (req, res) => {
+  try {
+    const fileExists = fs.existsSync('measurements.csv')
+    res.status(200).json({ result: fileExists })
+  }
+  catch (err) {
+    console.error('Error while checking CSV:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/downloadCSV', async (req, res) => {
+  // const path = `${__dirname}/measurements.csv`
+  // const filePath = fs.createWriteStream(path);
+  const filePath = path.join(__dirname, '../../measurements.csv');
+  res.download(filePath);
+  // res.status(200).json({ message: "Download Completed" })
+})
 
 
 app.listen(port, () => {
