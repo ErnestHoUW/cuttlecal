@@ -164,8 +164,6 @@ app.get('/startCalibration', async (req, res) => {
       currentCalibrationProcess = null; // Reset the reference when the process exits
     });
     
-    await new Promise(r => setTimeout(r, 2000));
-    calibrationInProgress = false;
     res.status(200).json({ message: 'Calibration started successfully' });
   } catch (err) {
     console.error('Error while starting calibration:', err);

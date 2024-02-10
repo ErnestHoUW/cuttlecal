@@ -17,7 +17,7 @@ const ColourChangeScreen = ({ apiUrl }) => {
     const [isFullscreen, goFullscreen, exitFullscreen] = useFullscreen();
     const elementRef = useRef(null);
     const [isStarted, setIsStarted] = useState(false);
-    const [showQR, setShowQR] = useState(false);
+    const [showQR, setShowQR] = useState(true);
     const [endQR, setEndQR] = useState(false);
 
     const updateWindowDimensions = () => {
