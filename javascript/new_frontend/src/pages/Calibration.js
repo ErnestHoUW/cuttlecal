@@ -6,7 +6,7 @@ import "../styles/Calibration.css";
 
 const url = `http://${window.location.host.split(":")[0]}:3001`;
 
-export default function Calibration(props) {
+export default function Calibration() {
   const [color, setColor] = useState("127, 127, 127");
   const [calibrating, setCalibrating] = useState(false);
   const [calibrationColors, setCalibrationColors] = useState([]);

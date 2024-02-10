@@ -5,10 +5,24 @@
     justify-content: center;
 }
 
+.graph-container {
+    display: flex;
+    gap: 15px;
+    margin: 30px;
+    border: 2px solid black;
+}
+
 .button-container {
     display: flex;
     bottom: 20%;
     position: fixed;
     gap: 15px;
+}
+
+.upload-button-conatiner {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
 }
 
