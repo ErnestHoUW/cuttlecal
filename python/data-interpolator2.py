@@ -1,4 +1,3 @@
-
 import numpy as np
 import csv
 import csv
@@ -10,35 +9,38 @@ from matplotlib.animation import FuncAnimation, FFMpegWriter
 from matplotlib.colors import LightSource
 from concurrent.futures import ThreadPoolExecutor
 
+
 def idw_interpolation(kdtree, values, query_points, k=10, p=2):
     # Find k nearest neighbors for each query point
     distances, indices = kdtree.query(query_points, k=k)
-    
+
     # Avoid division by zero
     distances[distances == 0] = 1e-12
-    
+
     # Calculate weights based on inverse distance
-    weights = 1 / distances**p
-    
+    weights = 1 / distances ** p
+
     # Compute weighted average of values
     interpolated_values = np.sum(weights * values[indices], axis=1) / np.sum(weights, axis=1)
-    
+
     return interpolated_values
+
 
 def parallel_idw_interpolation(kdtree, values, grid_points_chunks, k=10, p=2):
     def interpolate_chunk(chunk):
         distances, indices = kdtree.query(chunk, k=k)
         distances[distances == 0] = 1e-12  # Avoid division by zero
-        weights = 1 / distances**p
+        weights = 1 / distances ** p
         return np.sum(weights * values[indices], axis=1) / np.sum(weights, axis=1)
-    
+
     interpolated_values = []
     with ThreadPoolExecutor() as executor:
         results = executor.map(interpolate_chunk, grid_points_chunks)
         for result in results:
             interpolated_values.extend(result)
-    
+
     return np.array(interpolated_values)
+
 
 def read_measurements(file_path):
     rgb_visited = [[[False] * 256 for _ in range(256)] for _ in range(256)]
@@ -63,6 +65,7 @@ def read_measurements(file_path):
 
     return rgb_points, red_values, green_values, blue_values
 
+
 def interpolate_values(method, points, values):
     """
     Interpolate values using the specified method.
@@ -74,7 +77,7 @@ def interpolate_values(method, points, values):
     - interpolated_values: The interpolated values at the grid points
     """
     if method == 'idw':
-                # Create a KDTree with your points
+        # Create a KDTree with your points
         kdtree = KDTree(points)
 
         # Define the 3D grid for RGB space
@@ -89,7 +92,7 @@ def interpolate_values(method, points, values):
 
         return interpolated_values_3d
     elif method == 'parallel_idw':
-                # Create a KDTree with your points
+        # Create a KDTree with your points
         kdtree = KDTree(points)
 
         # Define the 3D grid for RGB space
@@ -107,6 +110,7 @@ def interpolate_values(method, points, values):
     #     return another_interpolation_method(...)
     else:
         raise ValueError("Unsupported interpolation method.")
+
 
 # Read measurements from the first file
 rgb_points1, red_values1, green_values1, blue_values1 = read_measurements('measurements_lights_off.csv')
@@ -129,10 +133,10 @@ for i, point in enumerate(rgb_points1):
     if point in rgb_points2_set:
         # Find the index of the point in the second list
         j = rgb_points2.index(point)
-        
+
         # Store the common point
         common_points.append(point)
-        
+
         # Calculate the differences in color values
         red_diff = red_values1[i] - red_values2[j]
         green_diff = green_values1[i] - green_values2[j]
@@ -158,11 +162,12 @@ interpolated_reds = interpolate_values("parallel_idw", points, red_values)
 interpolated_greens = interpolate_values("parallel_idw", points, green_values)
 interpolated_blues = interpolate_values("parallel_idw", points, blue_values)
 
+
 def animate_graph(interpolated_reds, interpolated_greens, interpolated_blues):
     x = np.arange(0, 256)
     y = np.arange(0, 256)
     X, Y = np.meshgrid(x, y)
-    
+
     Z_max = max(interpolated_reds.max(), interpolated_greens.max(), interpolated_blues.max())
     Z_min = min(interpolated_reds.min(), interpolated_greens.min(), interpolated_blues.min())
 
@@ -189,17 +194,18 @@ def animate_graph(interpolated_reds, interpolated_greens, interpolated_blues):
         ax.set_zlabel('Difference')
 
     def update_plot(frame):
-        for ax, interpolated_values_3d,title in zip(axes, [interpolated_reds, interpolated_greens, interpolated_blues], ['Red Channel', 'Green Channel', 'Blue Channel']):
+        for ax, interpolated_values_3d, title in zip(axes, [interpolated_reds, interpolated_greens, interpolated_blues],
+                                                     ['Red Channel', 'Green Channel', 'Blue Channel']):
             ax.clear()
             Z = interpolated_values_3d[:, :, frame]
             Z_smoothed = gaussian_filter(Z, sigma=2)
-            
+
             # Create an RGB array based on X, Y, and the current frame
             colors = np.zeros((256, 256, 3))
             colors[:, :, 0] = X / 255  # Red from X
             colors[:, :, 1] = Y / 255  # Green from Y
             colors[:, :, 2] = frame / 255  # Blue from the current frame
-            
+
             # Plot the surface with the RGB colors
             ax.plot_surface(X.T, Y.T, Z_smoothed, facecolors=colors, edgecolor='none')
             ax.set_xlim(0, 255)
@@ -214,6 +220,7 @@ def animate_graph(interpolated_reds, interpolated_greens, interpolated_blues):
     ani = FuncAnimation(fig, update_plot, frames=range(0, 256), interval=30)
 
     plt.show()
+
 
 # Call the function with interpolated values for each color channel
 animate_graph(interpolated_reds, interpolated_greens, interpolated_blues)
