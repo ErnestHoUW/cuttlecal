@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
 const { spawn } = require('child_process');
+const multer = require('multer');
 
 app.use(express.json());
 
@@ -17,6 +18,8 @@ app.use(express.json());
 app.use(cors({
   origin: '*' // This is the React app's URL
 }));
+
+//app.use(express.urlencoded({ extended: true }));
 
 // Function to generate random RGB color
 const generateRandomRGBColor = () => {
@@ -60,6 +63,7 @@ const readdirAsync = promisify(fs.readdir);
 const unlinkAsync = promisify(fs.unlink);
 
 let currentCalibrationProcess = null;
+let interpolationProcess = null;
 
 // Function to terminate the process and wait for it to exit
 const terminateProcess = (process) => {
@@ -183,11 +187,53 @@ app.get('/checkCSV', async (req, res) => {
 });
 
 app.get('/downloadCSV', async (req, res) => {
-  // const path = `${__dirname}/measurements.csv`
-  // const filePath = fs.createWriteStream(path);
   const filePath = path.join(__dirname, '../../measurements.csv');
   res.download(filePath);
-  // res.status(200).json({ message: "Download Completed" })
+})
+
+let flag = true;
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/')
+  },
+  filename: (req, file, cb) => {
+    if (flag) {
+      cb(null, "measurementA.csv")
+    }
+    else {
+      cb(null, "measurementB.csv")
+    }
+    flag = !flag
+  }
+})
+
+const upload = multer({ storage: storage })
+
+app.post('/interpolatorData', upload.array('files'), async (req, res) => {
+
+  const dataInterpolatorPath = path.join('..', '..', 'python', 'data-interpolator3.py');
+  const fileAPath = req.files[0].path
+  const fileBPath = req.files[1].path
+
+  var python = spawn('python', [dataInterpolatorPath, fileAPath, fileBPath]);
+
+  python.stderr.on('data', (data) => {
+    console.error(`python error: ${data}`);
+  });
+
+  python.on('close', (code) => {
+    var obj = JSON.parse(fs.readFileSync('array_data.json', 'utf8'));
+    data = obj
+    fs.unlink('array_data.json', (error) => {
+      if(error) {
+        console.error('Error deleting file')
+        res.status(500).json({ message: 'Cannot delete file' })
+      }
+    });
+    res.status(200).json({ result: data })
+  });
+
 })
 
 
