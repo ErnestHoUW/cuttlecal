@@ -81,7 +81,7 @@ export default function Calibration() {
         } else {
           setCalibrationColors([]);
           setColor("127, 127, 127");
-          setCalibrating(false);
+          //setCalibrating(false);
           clearInterval(interval);
 
           const updateColorDisplayStatus = async () => {

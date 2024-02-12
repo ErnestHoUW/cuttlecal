@@ -15,6 +15,7 @@ compile_commands.json
 
 # dependencies
 /measurements/*
+/javascript/backend/node_modules
 /javascript/frontend/node_modules
 /javascript/frontend/.pnp
 /javascript/frontend/.pnp.js

@@ -23,7 +23,7 @@ using namespace std;
 int frame_height;
 int frame_width;
 int frame_length = 50;
-int color_step = 15;
+int color_step = 50;
 vector<vector<vector<bool>>> processed_colors(256, vector<vector<bool>>(256, vector<bool>(256)));
 const uint8_t numConsumers = 16;
 
@@ -261,7 +261,7 @@ int main(int argc, char* argv[]) {
             // Mark that this color has been successfully captured
             processed_colors[(int)color_code[0]][(int)color_code[1]][(int)color_code[2]] = true;
             measurement_csv << measurement.get_csv_measurement() <<"\n";
-            imwrite("measurements/measurement"+to_string(i)+".png", measurement.get_processed_frame());
+            //imwrite("measurements/measurement"+to_string(i)+".png", measurement.get_processed_frame());
             i++;
         }
         i=0;
@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
             
             Measurement measurement=result.second;
             
-            imwrite("measurements/debug"+to_string(i)+".png", measurement.get_processed_frame());
+            //imwrite("measurements/debug"+to_string(i)+".png", measurement.get_processed_frame());
             i++;
         }
         // Reset the queues
