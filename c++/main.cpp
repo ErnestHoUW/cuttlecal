@@ -225,7 +225,20 @@ int main(int argc, char* argv[]) {
         j["frame_length"] = frame_length; // the delay between colors showing
         j["colors"] = generate_colors_array();
         std::cout << j.dump() << endl;
-        auto res = cli.Post("/addColors", j.dump(), "application/json");
+        string jsonPayload = R"({"status": true})";
+        auto res = cli.Post("/colorDisplayStatus", jsonPayload, "application/json");
+
+        if (res) {
+            if (res->status == 200) {
+                cout << res->body << endl;
+            } else {
+                cout << "Failed to post JSON, status code: " << res->status << endl;
+            }
+        } else {
+            cout << "Failed to connect to the server or other network error occurred." << endl;
+        }
+        
+        res = cli.Post("/addColors", j.dump(), "application/json");
 
         if (res) {
             if (res->status == 200) {

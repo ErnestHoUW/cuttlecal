@@ -51,7 +51,7 @@ export default function Calibration() {
           setCalibrationColors(data.colors);
           setTimeInterval(data.frame_length);
           console.log(data.frame_length);
-          await axios.post(url + "/colorDisplayStatus", { status: true });
+          // await axios.post(url + "/colorDisplayStatus", { status: true });
         } else {
           setTimeout(() => getCalibrationColors(), 1000);
         }
@@ -83,6 +83,7 @@ export default function Calibration() {
           setColor("127, 127, 127");
           //setCalibrating(false);
           clearInterval(interval);
+          console.log("hello");
 
           const updateColorDisplayStatus = async () => {
             await axios
