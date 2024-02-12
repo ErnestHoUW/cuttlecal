@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button } from 'react-bootstrap'
+import "../styles/FileUpload.css";
 
 export default function FileUpload({ file, setFile }) {
     const fileInputRef = React.createRef();

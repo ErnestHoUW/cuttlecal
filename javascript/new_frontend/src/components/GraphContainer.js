@@ -1,5 +1,6 @@
 import React from 'react'
 import Graph from './Graph'
+import "../styles/GraphContainer.css";
 
 function GraphContainer({ diffFile }) {
   return (

@@ -3,6 +3,7 @@ import FileUpload from '../components/FileUpload'
 import GraphContainer from '../components/GraphContainer';
 import axios from "axios";
 import { Button } from 'react-bootstrap';
+import "../styles/Upload.css";
 
 const url = `http://${window.location.host.split(":")[0]}:3001`;
 

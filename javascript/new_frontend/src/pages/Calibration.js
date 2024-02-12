@@ -152,21 +152,11 @@ export default function Calibration() {
         height: `calc(100vh - 56px)`,
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          padding: `${10}px`, // 10% of qrSize as padding
-          backgroundColor: "#FFFFFF", // White background for the border
-          display: "inline-block", // Use inline-block for the div to fit the size of the QRCode plus padding
-        }}
-      >
+      <div className="qr-code-container">
         <QRCode
           value={JSON.stringify(color).slice(1, -1)}
           level={"H"}
-          size={200}
+          size={100}
         />
       </div>
 

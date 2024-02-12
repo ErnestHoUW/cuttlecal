@@ -1,5 +1,6 @@
 import React from 'react'
 import TriangleA from './trianglea.gif'
+import "../styles/Graph.css";
 
 export default function Graph() {
   return (
