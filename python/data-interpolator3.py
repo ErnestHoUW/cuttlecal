@@ -45,7 +45,7 @@ def parallel_idw_interpolation(kdtree, values, grid_points_chunks, k=10, p=2):
 
 
 def read_measurements(file_path):
-    rgb_visited = [[[False] * 256 for _ in range(256)] for _ in range(256)]
+    rgb_measurements = {}
     rgb_points = []
     red_values = []
     green_values = []
@@ -53,17 +53,27 @@ def read_measurements(file_path):
 
     with open(file_path, encoding='utf8') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
-        next(csv_reader)  # Skip the header
+        next(csv_reader)
         for row in csv_reader:
             r, g, b = [int(val) for val in row[:3]]
             r_measured, g_measured, b_measured = [float(val) for val in row[3:]]
+            
+            if (r, g, b) not in rgb_measurements:
+                rgb_measurements[(r, g, b)] = {'sums': [r_measured, g_measured, b_measured], 'count': 1}
+            else:
+                rgb_measurements[(r, g, b)]['sums'] = [
+                    rgb_measurements[(r, g, b)]['sums'][0] + r_measured,
+                    rgb_measurements[(r, g, b)]['sums'][1] + g_measured,
+                    rgb_measurements[(r, g, b)]['sums'][2] + b_measured
+                ]
+                rgb_measurements[(r, g, b)]['count'] += 1
 
-            if not rgb_visited[r][g][b]:
-                rgb_visited[r][g][b] = True
-                rgb_points.append((r, g, b))
-                red_values.append(r_measured)
-                green_values.append(g_measured)
-                blue_values.append(b_measured)
+    for (r, g, b), data in rgb_measurements.items():
+        count = data['count']
+        rgb_points.append((r, g, b))
+        red_values.append(data['sums'][0] / count)
+        green_values.append(data['sums'][1] / count)
+        blue_values.append(data['sums'][2] / count)
 
     return rgb_points, red_values, green_values, blue_values
 
@@ -124,6 +134,7 @@ def main():
     # Read measurements from the second file
     rgb_points2, red_values2, green_values2, blue_values2 = read_measurements(dataB)
     # Initialize a list to hold the points that are present in both rgb_points1 and rgb_points2
+    print("Python Interpolator: done reading measurements")
     common_points = []
 
     # Initialize lists to hold the differences
