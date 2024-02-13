@@ -3,24 +3,28 @@ import Graph from './Graph'
 
 import "../styles/GraphContainer.css";
 
-function GraphContainer({ diffFile, interpolationData }) {
+function GraphContainer({ diffFile, interpolationData, bValue }) {
   const [surfacePlotR, setSurfacePlotR] = useState()
   const [surfacePlotG, setSurfacePlotG] = useState()
   const [surfacePlotB, setSurfacePlotB] = useState()
 
 
   useEffect(() => {
-    if (interpolationData.length != 0) {
-      const b = 128; // Fixed b value
+    console.log(interpolationData)
+    if (interpolationData && interpolationData.length !== 0) {
+      const b = bValue; // Fixed b value
       let red_diff = []; // Initialize arr as an empty array
       let green_diff = [];
-      let blue_diff = []
+      let blue_diff = [];
+      console.log(interpolationData)
+      console.log(interpolationData[0])
       
       for (let g = 0; g < 256; g++) {
         let red_row = []; // Initialize a new row
         let green_row = [];
         let blue_row = [];
         for (let r = 0; r < 256; r++) {
+          console.log(r, g)
           red_row.push(interpolationData[r][g][b][0]); // Add the value to the row
           green_row.push(interpolationData[r][g][b][1]); // Add the value to the row
           blue_row.push(interpolationData[r][g][b][2]); // Add the value to the row

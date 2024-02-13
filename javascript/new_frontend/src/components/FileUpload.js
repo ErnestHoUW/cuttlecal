@@ -3,7 +3,7 @@ import { Button } from 'antd'
 import { UploadOutlined } from '@ant-design/icons';
 import "../styles/FileUpload.css";
 
-export default function FileUpload({ file, setFile }) {
+export default function FileUpload({ file, setFile, fileType }) {
     const fileInputRef = React.createRef();
 
     const handleFileChange = (event) => {
@@ -20,7 +20,7 @@ export default function FileUpload({ file, setFile }) {
                 onChange={(e) => handleFileChange(e)}
             />
             <Button onClick={() => fileInputRef.current.click()} icon={<UploadOutlined />}>
-                Upload CSV
+                Upload {fileType}
             </Button>
         </div>
     )

@@ -232,11 +232,11 @@ app.post('/interpolatorData', upload.array('files'), async (req, res) => {
       if (code === 0) { // Python script executed successfully
         try {
           const obj = JSON.parse(fs.readFileSync('array_data.json', 'utf8'));
-          fs.unlink('array_data.json', (error) => {
-            if (error) {
-              console.error('Error deleting file');
-            }
-          });
+          // fs.unlink('array_data.json', (error) => {
+            // if (error) {
+              // console.error('Error deleting file');
+            // }
+          // });
           res.status(200).json({ result: obj });
         } catch (err) {
           console.error('Error reading or parsing JSON file');
