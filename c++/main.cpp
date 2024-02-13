@@ -225,7 +225,20 @@ int main(int argc, char* argv[]) {
         j["frame_length"] = frame_length; // the delay between colors showing
         j["colors"] = generate_colors_array();
         std::cout << j.dump() << endl;
-        auto res = cli.Post("/addColors", j.dump(), "application/json");
+        string jsonPayload = R"({"status": true})";
+        auto res = cli.Post("/colorDisplayStatus", jsonPayload, "application/json");
+
+        if (res) {
+            if (res->status == 200) {
+                cout << res->body << endl;
+            } else {
+                cout << "Failed to post JSON, status code: " << res->status << endl;
+            }
+        } else {
+            cout << "Failed to connect to the server or other network error occurred." << endl;
+        }
+        
+        res = cli.Post("/addColors", j.dump(), "application/json");
 
         if (res) {
             if (res->status == 200) {
@@ -261,7 +274,7 @@ int main(int argc, char* argv[]) {
             // Mark that this color has been successfully captured
             processed_colors[(int)color_code[0]][(int)color_code[1]][(int)color_code[2]] = true;
             measurement_csv << measurement.get_csv_measurement() <<"\n";
-            imwrite("measurements/measurement"+to_string(i)+".png", measurement.get_processed_frame());
+            //imwrite("measurements/measurement"+to_string(i)+".png", measurement.get_processed_frame());
             i++;
         }
         i=0;
@@ -270,7 +283,7 @@ int main(int argc, char* argv[]) {
             
             Measurement measurement=result.second;
             
-            imwrite("measurements/debug"+to_string(i)+".png", measurement.get_processed_frame());
+            //imwrite("measurements/debug"+to_string(i)+".png", measurement.get_processed_frame());
             i++;
         }
         // Reset the queues

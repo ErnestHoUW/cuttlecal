@@ -23,12 +23,14 @@ class Measurement {
     Measurement() : measured_frame(Mat()), processed_frame(Mat()), displayed_color_code(Scalar()), measured_color_code(Scalar()), stddev(Scalar()) {}
     // Other methods...
     Measurement(Mat &measured_frame, vector<Point> quadPoints, string qr_code_data) {
-        measured_frame = measured_frame.clone();
-        processed_frame = correct_gray_uniformity(measured_frame, gray_correction_layer);
-        measured_color_code = average_color(measured_frame, quadPoints);
+        // measured_frame = measured_frame.clone();
+        // processed_frame = correct_gray_uniformity(measured_frame, gray_correction_layer);
+        Mat local_measured_frame = measured_frame.clone();
+        Mat processed_frame = correct_gray_uniformity(measured_frame, gray_correction_layer);
+        measured_color_code = average_color(processed_frame, quadPoints);
         stddev = standard_deviation(measured_frame, quadPoints);
         //confinv_size = confidence_interval_size(measured_frame, quadPoints);
-        processed_frame = average_color_matrix(measured_frame, quadPoints);
+        //processed_frame = average_color_matrix(measured_frame, quadPoints);
 
         // parsing qr_code
         istringstream qr_code_ss(qr_code_data);

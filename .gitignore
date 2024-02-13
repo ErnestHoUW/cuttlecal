@@ -1,4 +1,5 @@
 .vscode
+.idea
 build/
 c++/CMakeCache.txt
 c++/CMakeFiles/
@@ -12,11 +13,15 @@ CMakeLists.txt.user
 *.csv
 compile_commands.json
 
+array_data.json
+
 # dependencies
 /measurements/*
+/javascript/backend/node_modules
 /javascript/frontend/node_modules
 /javascript/frontend/.pnp
 /javascript/frontend/.pnp.js
+/javascript/new_frontend/node_modules
 
 # testing
 /javascript/frontend/coverage
@@ -25,6 +30,7 @@ compile_commands.json
 /javascript/frontend/build
 
 # misc
+.DS_Store
 /javascript/frontend/.DS_Store
 /javascript/frontend/.env.local
 /javascript/frontend/.env.development.local
