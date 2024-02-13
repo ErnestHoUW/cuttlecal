@@ -15,12 +15,12 @@ function GraphContainer({ diffFile, interpolationData }) {
       let red_diff = []; // Initialize arr as an empty array
       let green_diff = [];
       let blue_diff = []
-  
-      for (let r = 0; r < 256; r++) {
+      
+      for (let g = 0; g < 256; g++) {
         let red_row = []; // Initialize a new row
         let green_row = [];
         let blue_row = [];
-        for (let g = 0; g < 256; g++) {
+        for (let r = 0; r < 256; r++) {
           red_row.push(interpolationData[r][g][b][0]); // Add the value to the row
           green_row.push(interpolationData[r][g][b][1]); // Add the value to the row
           blue_row.push(interpolationData[r][g][b][2]); // Add the value to the row
@@ -32,7 +32,8 @@ function GraphContainer({ diffFile, interpolationData }) {
   
       // Now arr is a 2D array where arr[r][g] = interpolationData[r][g][b][0]
       // You can use arr as needed here
-      console.log(red_diff);
+      console.log(`(0,255,128): ${interpolationData[0][255][128][0]}`);
+      console.log(`(255,0,128): ${interpolationData[255][0][128][0]}`);
       setSurfacePlotR(red_diff)
       setSurfacePlotG(green_diff)
       setSurfacePlotB(blue_diff)
@@ -42,9 +43,9 @@ function GraphContainer({ diffFile, interpolationData }) {
 
   return (
     <div className="graph-container">
-        <Graph data={surfacePlotR}/>
-        <Graph data={surfacePlotG}/>
-        <Graph data={surfacePlotB}/>
+        <Graph data={surfacePlotR} title="Red Channel Diffs (Blue=128)"/>
+        <Graph data={surfacePlotG} title="Green Channel Diffs (Blue=128)"/>
+        <Graph data={surfacePlotB} title="Blue Channel Diffs (Blue=128)"/>
     </div>
   )
 }
