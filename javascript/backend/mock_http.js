@@ -54,7 +54,7 @@ app.post('/addColors', (req, res) => {
   console.log(req.body.colors)
   console.log(req.body.frame_length)
   colorsArray.push(...req.body.colors)
-  frameLength = req.body.frame_length
+  frameLength = 50// req.body.frame_length
 
   res.status(200).json()
 })
@@ -195,7 +195,7 @@ let flag = true;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/')
+    cb(null, '')
   },
   filename: (req, file, cb) => {
     if (flag) {
@@ -211,30 +211,43 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 app.post('/interpolatorData', upload.array('files'), async (req, res) => {
+  const dataInterpolatorPath = path.join('python', 'data-interpolator3.py');
+  const fileAPath = req.files[0].path;
+  const fileBPath = req.files[1].path;
 
-  const dataInterpolatorPath = path.join('..', '..', 'python', 'data-interpolator3.py');
-  const fileAPath = req.files[0].path
-  const fileBPath = req.files[1].path
+  let errorOccurred = false;
 
-  var python = spawn('python', [dataInterpolatorPath, fileAPath, fileBPath]);
+  const python = spawn('python', [dataInterpolatorPath, fileAPath, fileBPath]);
 
   python.stderr.on('data', (data) => {
     console.error(`python error: ${data}`);
+    if (!errorOccurred) {
+      errorOccurred = true; // Prevent multiple responses
+      res.status(500).json({ message: `Python error: ${data.toString()}` });
+    }
   });
 
   python.on('close', (code) => {
-    var obj = JSON.parse(fs.readFileSync('array_data.json', 'utf8'));
-    data = obj
-    fs.unlink('array_data.json', (error) => {
-      if(error) {
-        console.error('Error deleting file')
-        res.status(500).json({ message: 'Cannot delete file' })
+    if (!errorOccurred) { // Check if there was no previous error
+      if (code === 0) { // Python script executed successfully
+        try {
+          const obj = JSON.parse(fs.readFileSync('array_data.json', 'utf8'));
+          fs.unlink('array_data.json', (error) => {
+            if (error) {
+              console.error('Error deleting file');
+            }
+          });
+          res.status(200).json({ result: obj });
+        } catch (err) {
+          console.error('Error reading or parsing JSON file');
+          res.status(500).json({ message: 'Error processing result file' });
+        }
+      } else {
+        res.status(500).json({ message: 'Python script exited with error' });
       }
-    });
-    res.status(200).json({ result: data })
+    }
   });
-
-})
+});
 
 
 app.listen(port, () => {

@@ -36,7 +36,7 @@ def parallel_idw_interpolation(kdtree, values, grid_points_chunks, k=10, p=2):
         return np.sum(weights * values[indices], axis=1) / np.sum(weights, axis=1)
 
     interpolated_values = []
-    with ThreadPoolExecutor() as executor:
+    with ThreadPoolExecutor(max_workers=16) as executor:
         results = executor.map(interpolate_chunk, grid_points_chunks)
         for result in results:
             interpolated_values.extend(result)
@@ -174,7 +174,11 @@ def main():
     for r in range(n):
         for g in range(n):
             for b in range(n):
-                interpolated_rgb[r][g][b] = (interpolated_reds[r][g][b], interpolated_greens[r][g][b], interpolated_blues[r][g][b])
+                interpolated_rgb[r][g][b] = (round(interpolated_reds[r][g][b]), round(interpolated_greens[r][g][b]), round(interpolated_blues[r][g][b]))
+    
+     
+    # array_2d = [[interpolated_reds[x][y] for y in range(256)] for x in range(256)]
+    # print(array_2d)
  
     # Convert the Python array to a JSON string
     json_string = json.dumps(interpolated_rgb)

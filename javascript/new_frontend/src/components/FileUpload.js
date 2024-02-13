@@ -1,5 +1,6 @@
 import React from 'react'
-import { Button } from 'react-bootstrap'
+import { Button } from 'antd'
+import { UploadOutlined } from '@ant-design/icons';
 import "../styles/FileUpload.css";
 
 export default function FileUpload({ file, setFile }) {
@@ -18,8 +19,7 @@ export default function FileUpload({ file, setFile }) {
                 ref={fileInputRef}
                 onChange={(e) => handleFileChange(e)}
             />
-            <div>{file?.name || "No File Selected"}</div>
-            <Button onClick={() => fileInputRef.current.click()}>
+            <Button onClick={() => fileInputRef.current.click()} icon={<UploadOutlined />}>
                 Upload CSV
             </Button>
         </div>

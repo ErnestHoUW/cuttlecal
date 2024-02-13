@@ -23,7 +23,7 @@ using namespace std;
 int frame_height;
 int frame_width;
 int frame_length = 50;
-int color_step = 50;
+int color_step = 15;
 vector<vector<vector<bool>>> processed_colors(256, vector<vector<bool>>(256, vector<bool>(256)));
 const uint8_t numConsumers = 16;
 
