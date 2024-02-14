@@ -1,7 +1,7 @@
 import numpy as np
 import csv
 import csv
-from scipy.spatial import KDTree
+from scipy.spatial import cKDTree
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.ndimage import gaussian_filter
@@ -78,7 +78,7 @@ def interpolate_values(method, points, values):
     """
     if method == 'idw':
         # Create a KDTree with your points
-        kdtree = KDTree(points)
+        kdtree = cKDTree(points)
 
         # Define the 3D grid for RGB space
         grid_x, grid_y, grid_z = np.mgrid[0:256, 0:256, 0:256]
@@ -93,7 +93,7 @@ def interpolate_values(method, points, values):
         return interpolated_values_3d
     elif method == 'parallel_idw':
         # Create a KDTree with your points
-        kdtree = KDTree(points)
+        kdtree = cKDTree(points)
 
         # Define the 3D grid for RGB space
         grid_x, grid_y, grid_z = np.mgrid[0:256, 0:256, 0:256]
