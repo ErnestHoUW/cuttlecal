@@ -1,0 +1,32 @@
+.landingContainer {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  padding: 20px;
+  line-height: 1.6;
+}
+
+.mainContent {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-left: 40px;
+}
+
+h1 {
+  color: #005f73;
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: #007f8c;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+ol {
+  margin-left: 20px;
+}
+
+p {
+  margin-bottom: 20px;
+}

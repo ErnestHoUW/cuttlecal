@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import QRCode from "qrcode.react";
-import { Button } from "react-bootstrap";
+import { QuestionCircleOutlined, DownloadOutlined, CaretRightOutlined } from '@ant-design/icons';
+import { Button, ConfigProvider, Divider, Space, Tour } from "antd";
 import axios from "axios";
 import "../styles/Calibration.css";
 
@@ -13,6 +14,43 @@ export default function Calibration() {
   const [index, setIndex] = useState(0);
   const [timeInterval, setTimeInterval] = useState(5);
   const [csvAvailable, setCsvAvailable] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
+  const ref3 = useRef(null);
+  const ref4 = useRef(null);
+  const steps = [
+    {
+      title: 'Calibration Page',
+      description: 'Welcome to the Calibration Page! This crucial part of CuttleCal is designed specifically for reading and analyzing your monitors color output. Here, you will embark on the first step towards achieving perfect color harmony across your devices. Please follow the instructions carefully to ensure an accurate calibration process.',
+      placement: 'left',
+      cover: (
+        <img
+          alt="tour.png"
+          src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
+        />
+      ),
+      target: () => ref1.current,
+    },
+    {
+      title: 'QR Code',
+      description: "Ensure the webcam shroud doesn't cover the QR code for correct color reading.",
+      target: () => ref2.current,
+    },
+    {
+      title: 'Start Button',
+      description: "Click 'Start' to begin calibration. Make sure everything is set up correctly first.",
+      placement: 'top',
+      target: () => ref3.current,
+    },
+    {
+      title: 'Download Button',
+      placement: 'top',
+      description: "After calibration, click to download the results as a CSV file.",
+      target: () => ref4.current,
+    },
+  ];
 
   function handleStartMeasurement() {
     try {
@@ -133,58 +171,80 @@ export default function Calibration() {
       if (data.result) {
         setCsvAvailable(true);
       }
-      else{
+      else {
         setCsvAvailable(false);
         setTimeout(() => pollCSV(), 1000);
       }
     }
-    
+
     if (!csvAvailable) {
       pollCSV();
     }
   }, [csvAvailable])
 
   return (
-    <div
-      className="panel"
-      style={{
-        backgroundColor: `rgb(${color})`,
-        height: `calc(100vh - 56px)`,
+    <ConfigProvider
+      theme={{
+        Button: {
+          /* here is your component tokens */
+        },
       }}
     >
       <div
+        className="panel"
         style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          padding: `${10}px`, // 10% of qrSize as padding
-          backgroundColor: "#FFFFFF", // White background for the border
-          display: "flex"
+          backgroundColor: `rgb(${color})`,
+          height: `calc(100vh - 56px)`,
         }}
       >
-        <QRCode
-          value={JSON.stringify(color).slice(1, -1)}
-          level={"H"}
-          size={100}
-        />
-      </div>
-
-      {!calibrating && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            padding: `${10}px`, // 10% of qrSize as padding
+            backgroundColor: "#FFFFFF", // White background for the border
+            display: "flex"
+          }}
+          ref={ref2}
+        >
+          <QRCode
+            value={JSON.stringify(color).slice(1, -1)}
+            level={"H"}
+            size={100}
+          />
+        </div>
         <div className="button-container">
           <Button
+            icon={<CaretRightOutlined />}
             onClick={() => handleStartMeasurement()}
+            size="large"
+            type="primary"
+            ref={ref3}
           >
-            Start Measuring
+            Start
           </Button>
           <Button
+            icon={<DownloadOutlined />}
             onClick={() => downloadCSV()}
             disabled={!csvAvailable}
+            description="download"
+            type="primary"
+            size="large"
+            ref={ref4}
           >
-            Download CSV
+            Download
+          </Button>
+          <Button icon={<QuestionCircleOutlined />} type="primary"
+            size="large"
+            onClick={() => setOpen(true)}
+          >
+            Help
           </Button>
         </div>
-      )}
-    </div>
+        <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
+      </div>
+    </ConfigProvider>
   );
 }

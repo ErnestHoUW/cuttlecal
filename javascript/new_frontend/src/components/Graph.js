@@ -1,6 +1,6 @@
 import React from 'react';
 import Plot from 'react-plotly.js';
-import TriangleA from './trianglea.gif';
+import TriangleA from '../images/trianglea.gif';
 import "../styles/Graph.css";
 
 export default function Graph({ data, title }) {

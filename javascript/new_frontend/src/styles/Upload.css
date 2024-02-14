@@ -12,6 +12,7 @@
     flex-direction: column;
     flex-wrap: wrap;
     height: 100px;
+    width: 500px;
     align-items: center;
 }
 
