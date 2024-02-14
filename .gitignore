@@ -41,3 +41,6 @@ javascript/frontend/npm-debug.log*
 javascript/frontend/yarn-debug.log*
 javascript/frontend/yarn-error.log*
 vcpkg_installed
+
+
+javascript/backend/node_modules*
