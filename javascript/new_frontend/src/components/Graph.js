@@ -40,10 +40,6 @@ export default function Graph({ data, title }) {
   }
   console.log(performance.now() - a, "ms create scatterData")
 }, [data])
-useEffect(() => {
-  bValue = bValue +1
-}, []);
-  
 
   return (
     <div>
