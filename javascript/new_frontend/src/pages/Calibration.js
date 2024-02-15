@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import QRCode from "qrcode.react";
 import { QuestionCircleOutlined, DownloadOutlined, CaretRightOutlined } from '@ant-design/icons';
-import { Button, ConfigProvider, Divider, Space, Tour } from "antd";
+import { Button, ConfigProvider, Tour } from "antd";
 import axios from "axios";
 import "../styles/Calibration.css";
 
