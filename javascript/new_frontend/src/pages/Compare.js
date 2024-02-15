@@ -14,13 +14,11 @@ export default function Compare() {
   function handleButton(toAdd) {
     setPanelAColor(`rgb(${valueR}, ${valueG}, ${valueB}, 1)`)
     if (interpolationData) {
-      console.log('hi')
       let offsetArr = interpolationData[valueR][valueG][valueB]
       if (toAdd) {
         setPanelBColor(`rgb(${valueR + offsetArr[0]}, ${valueG + offsetArr[1]}, ${valueB + offsetArr[2]}, 1)`)
       }
       else {
-        console.log(`rgb(${valueR - offsetArr[0]}, ${valueG - offsetArr[1]}, ${valueB - offsetArr[2]})`)
         setPanelBColor(`rgb(${valueR - offsetArr[0]}, ${valueG - offsetArr[1]}, ${valueB - offsetArr[2]}, 1)`)
       }
     }

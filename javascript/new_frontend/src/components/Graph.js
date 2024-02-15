@@ -1,38 +1,56 @@
-import React from 'react';
+import React, { useEffect, useState, useRef }  from 'react';
 import Plot from 'react-plotly.js';
 import TriangleA from '../images/trianglea.gif';
 import "../styles/Graph.css";
 
 export default function Graph({ data, title }) {
-  // Generate scatter plot data
-  const scatterData = {
-    x: [],
-    y: [],
-    z: [],
-    mode: 'markers',
-    type: 'scatter3d',
-    marker: {
-      size: 1,
-      color: [],
-      opacity: 1
-    }
-  };
+  const [loaded, setLoaded] = useState(false)
+  const [scatter, setScatter] = useState(null)
 
-  if (data) {
-    data.forEach((row, y) => {
-      row.forEach((z, x) => {
-        scatterData.x.push(x);
-        scatterData.y.push(y);
-        scatterData.z.push(z);
-        scatterData.marker.color.push(`rgb(${x}, ${y}, 0)`); // Color logic based on position
+
+  // Generate scatter plot data
+  let a = performance.now()
+  useEffect(() => {
+    if (data) {
+      setLoaded(false)
+      const scatterData = {
+        x: [],
+        y: [],
+        z: [],
+        mode: 'markers',
+        type: 'scatter3d',
+        marker: {
+          size: 1,
+          color: [],
+          opacity: 1
+        }
+      };
+
+    
+      data.forEach((row, y) => {
+        row.forEach((z, x) => {
+          scatterData.x.push(x);
+          scatterData.y.push(y);
+          scatterData.z.push(z);
+          scatterData.marker.color.push(`rgb(${x}, ${y}, 0)`); // Color logic based on position
+        });
       });
-    });
+      setScatter(scatterData)
+      
   }
+  console.log(performance.now() - a, "ms create scatterData")
+}, [data])
+useEffect(() => {
+  bValue = bValue +1
+}, []);
+  
 
   return (
     <div>
+      {!loaded && <div>Change bValue once to show plots</div>}
       {data ? (
         <Plot
+        style={{ display: loaded ? 'block' : 'none' }}
           data={[
             {
               z: data,
@@ -44,7 +62,7 @@ export default function Graph({ data, title }) {
                 [1, 'rgb(255, 255, 255)'] // Dark Gray
               ]
             },
-            scatterData // Include the scatter plot data
+            scatter // Include the scatter plot data
           ]}
           layout={{
             title: title,
@@ -61,6 +79,10 @@ export default function Graph({ data, title }) {
               zaxis: { title: 'Ref - Target' },
             }
           }}
+
+          onAfterPlot	={() => {
+            setLoaded(true)
+            console.log(performance.now()-a, "ms POGGGGERS")}}
         />
       ) : (
         <img src={TriangleA} alt="triangle" width="400" height="400" />

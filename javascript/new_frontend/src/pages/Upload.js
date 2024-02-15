@@ -9,6 +9,8 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Slider, Col, Row, InputNumber, ConfigProvider, Tour } from 'antd'
 import { useInterpolationData } from '../InterpolationDataContext';
 
+/* eslint-disable import/no-webpack-loader-syntax */
+import Worker from "worker-loader!../workers/parserWorker";
 
 const url = `http://${window.location.host.split(":")[0]}:3001`;
 
@@ -18,6 +20,7 @@ export default function Upload() {
   const [fileJSON, setFileJSON] = useState(null)
   const [diffFile, setDiffFile] = useState(null);
   const [bValue, setBValue] = useState(128);
+  const [debouncedBValue, setDebouncedBValue] = useState(128)
   const [loading, setLoading] = useState(false);
   const { interpolationData, setInterpolationData } = useInterpolationData();
   const [open, setOpen] = useState(false);
@@ -90,29 +93,68 @@ export default function Upload() {
     });
   }
 
+  // useEffect(() => {
+  //   const readFileContent = (file) => {
+  //     const reader = new FileReader();
+
+  //     let start = performance.now()
+  //     reader.onload = function (event) {
+  //       try {
+  //         // Parse the file content as JSON
+  //         const parsedData = JSON.parse(event.target.result);
+  //         // Set the parsed JSON data to the state variable
+  //         setInterpolationData(parsedData);
+  //         console.log(performance.now()-start, "ms for reading json and setting data")
+  //       } catch (error) {
+  //         console.error('Error parsing JSON:', error);
+  //       }
+  //     };
+
+  //     reader.readAsText(file);
+      
+  //   };
+
+  //   if (fileJSON) {
+  //     readFileContent(fileJSON);
+  //   }
+  // }, [fileJSON]);
+
   useEffect(() => {
-    const readFileContent = (file) => {
-      const reader = new FileReader();
+    const worker = new Worker('../workers/parserWorker.js');
+    const start = performance.now();
 
-      reader.onload = function (event) {
-        try {
-          // Parse the file content as JSON
-          const parsedData = JSON.parse(event.target.result);
-          // Set the parsed JSON data to the state variable
-          setInterpolationData(parsedData);
-          console.log(parsedData); // Optional: to see the parsed data in the console
-        } catch (error) {
-          console.error('Error parsing JSON:', error);
+    worker.onmessage = function(e) {
+        const { success, data, error } = e.data;
+        if (success) {
+            console.log('Parsing successful');
+            console.log(performance.now() - start, "ms for reading json and setting data");
+            setInterpolationData(data);
+        } else {
+            console.error('Error parsing JSON:', error);
         }
-      };
-
-      reader.readAsText(file);
     };
 
     if (fileJSON) {
-      readFileContent(fileJSON);
+      worker.postMessage(fileJSON);
     }
-  }, [fileJSON, setInterpolationData]);
+
+    return () => {
+        worker.terminate();
+    };
+}, [fileJSON]);
+
+
+useEffect(() => {
+  console.log("debouncedBValue")
+  const delayDebounceFn = setTimeout(() => {
+    console.log("debouncedBValue")
+    setDebouncedBValue(bValue);
+  }, 1000);
+
+  return () => {
+    clearTimeout(delayDebounceFn);
+  }
+}, [bValue]);
 
   return (
     <ConfigProvider
@@ -130,7 +172,7 @@ export default function Upload() {
           height: `calc(100vh - 56px)`,
         }}
       >
-        <GraphContainer bValue={bValue} diffFile={diffFile} interpolationData={interpolationData} ref={ref2}/>
+        <GraphContainer bValue={debouncedBValue} diffFile={diffFile} interpolationData={interpolationData} ref={ref2}/>
         <div style={{ display: "flex", gap: "30px" }}>
           <div ref={ref3} className="button-containerr">
             <div >{fileA?.name || "No File Selected"}</div>
