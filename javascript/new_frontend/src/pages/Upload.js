@@ -87,37 +87,11 @@ export default function Upload() {
       setInterpolationData(data)
       console.log(data)
       setLoading(false)
-      // setDiffFile(data.diffFile);
+      setDiffFile(data.diffFile);
     }).catch(function (error) {
       console.log(error)
     });
   }
-
-  // useEffect(() => {
-  //   const readFileContent = (file) => {
-  //     const reader = new FileReader();
-
-  //     let start = performance.now()
-  //     reader.onload = function (event) {
-  //       try {
-  //         // Parse the file content as JSON
-  //         const parsedData = JSON.parse(event.target.result);
-  //         // Set the parsed JSON data to the state variable
-  //         setInterpolationData(parsedData);
-  //         console.log(performance.now()-start, "ms for reading json and setting data")
-  //       } catch (error) {
-  //         console.error('Error parsing JSON:', error);
-  //       }
-  //     };
-
-  //     reader.readAsText(file);
-      
-  //   };
-
-  //   if (fileJSON) {
-  //     readFileContent(fileJSON);
-  //   }
-  // }, [fileJSON]);
 
   useEffect(() => {
     const worker = new Worker('../workers/parserWorker.js');
@@ -126,8 +100,6 @@ export default function Upload() {
     worker.onmessage = function(e) {
         const { success, data, error } = e.data;
         if (success) {
-            console.log('Parsing successful');
-            console.log(performance.now() - start, "ms for reading json and setting data");
             setInterpolationData(data);
         } else {
             console.error('Error parsing JSON:', error);
@@ -145,9 +117,7 @@ export default function Upload() {
 
 
 useEffect(() => {
-  console.log("debouncedBValue")
   const delayDebounceFn = setTimeout(() => {
-    console.log("debouncedBValue")
     setDebouncedBValue(bValue);
   }, 1000);
 

@@ -5,11 +5,11 @@ import { useInterpolationData } from '../InterpolationDataContext';
 
 
 export default function Compare() {
-  const [valueR, setValueR] = useState(0);
-  const [valueG, setValueG] = useState(0);
-  const [valueB, setValueB] = useState(0);
-  const [panelAColor, setPanelAColor] = useState('rgb(0,0,0)');
-  const [panelBColor, setPanelBColor] = useState('rgb(0,0,0)');
+  const [valueR, setValueR] = useState(150);
+  const [valueG, setValueG] = useState(50);
+  const [valueB, setValueB] = useState(50);
+  const [panelAColor, setPanelAColor] = useState('rgb(150,50,50)');
+  const [panelBColor, setPanelBColor] = useState('rgb(150,50,50)');
   const { interpolationData } = useInterpolationData();
 
   const [open, setOpen] = useState(false);

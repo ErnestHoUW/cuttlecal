@@ -3,16 +3,13 @@ import Plot from 'react-plotly.js';
 import TriangleA from '../images/trianglea.gif';
 import "../styles/Graph.css";
 
-export default function Graph({ data, title }) {
-  const [loaded, setLoaded] = useState(false)
+export default function Graph({ data, title, bValue }) {
   const [scatter, setScatter] = useState(null)
 
 
   // Generate scatter plot data
-  let a = performance.now()
   useEffect(() => {
     if (data) {
-      setLoaded(false)
       const scatterData = {
         x: [],
         y: [],
@@ -32,21 +29,18 @@ export default function Graph({ data, title }) {
           scatterData.x.push(x);
           scatterData.y.push(y);
           scatterData.z.push(z);
-          scatterData.marker.color.push(`rgb(${x}, ${y}, 0)`); // Color logic based on position
+          scatterData.marker.color.push(`rgb(${x}, ${y}, ${bValue})`); // Color logic based on position
         });
       });
       setScatter(scatterData)
       
   }
-  console.log(performance.now() - a, "ms create scatterData")
 }, [data])
 
   return (
     <div>
-      {!loaded && <div>Change bValue once to show plots</div>}
-      {data ? (
+      {//data ? (
         <Plot
-        style={{ display: loaded ? 'block' : 'none' }}
           data={[
             {
               z: data,
@@ -62,27 +56,25 @@ export default function Graph({ data, title }) {
           ]}
           layout={{
             title: title,
-            autosize: true,
+            autosize: false,
+            width: 500,
+            height: 500,
             margin: {
               l: 0,
               r: 0,
               b: 0,
-              t: 60,
+              t: 100,
             },
             scene: {
               xaxis: { title: 'Red Channel' },
               yaxis: { title: 'Green Channel' },
-              zaxis: { title: 'Ref - Target' },
+              zaxis: { title: 'Ref - Target',
+            range: [-50, 50] },
             }
-          }}
-
-          onAfterPlot	={() => {
-            setLoaded(true)
-            console.log(performance.now()-a, "ms POGGGGERS")}}
-        />
-      ) : (
-        <img src={TriangleA} alt="triangle" width="400" height="400" />
-      )}
-    </div>
+          }}/>
+      // ) : (
+      //  <h1>Please upload a file</h1>
+      // )}
+         } </div>
   );
 }

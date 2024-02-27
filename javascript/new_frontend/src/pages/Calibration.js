@@ -121,7 +121,6 @@ export default function Calibration() {
           setColor("127, 127, 127");
           //setCalibrating(false);
           clearInterval(interval);
-          console.log("hello");
 
           const updateColorDisplayStatus = async () => {
             await axios
@@ -177,7 +176,7 @@ export default function Calibration() {
       }
     }
 
-    if (!csvAvailable) {
+    if (!csvAvailable&&calibrating) {
       pollCSV();
     }
   }, [csvAvailable])
