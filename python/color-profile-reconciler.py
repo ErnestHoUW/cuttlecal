@@ -186,8 +186,8 @@ def main():
             for b in range(n):
                 interpolated_rgb[r][g][b] = (interpolated_reds[r][g][b], interpolated_greens[r][g][b] ,interpolated_blues[r][g][b])
 
-    average_channel_diff = [0, 0, 0]  # To store the sum for R, G, and B
-    variance_channel = [0, 0, 0]  # To store the variance for R, G, and B
+    average_channel_diff = [0, 0, 0]
+    variance_channel = [0, 0, 0]
     total_tuples = n ** 3
 
     # Calculate the sum for each channel
