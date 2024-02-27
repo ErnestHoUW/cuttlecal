@@ -4,18 +4,19 @@ import Graph from './Graph'
 import "../styles/GraphContainer.css";
 
 function GraphContainer({ diffFile, interpolationData, bValue }) {
-  const [surfacePlotR, setSurfacePlotR] = useState()
-  const [surfacePlotG, setSurfacePlotG] = useState()
-  const [surfacePlotB, setSurfacePlotB] = useState()
+  const [surfacePlotR, setSurfacePlotR] = useState([[0]])
+  const [surfacePlotG, setSurfacePlotG] = useState([[0]])
+  const [surfacePlotB, setSurfacePlotB] = useState([[0]])
 
 
   useEffect(() => {
     const calculate = async () => {
-      const b = bValue; // Fixed b value
-      let red_diff = []; // Initialize arr as an empty array
-      let green_diff = [];
-      let blue_diff = [];
+     
       if (interpolationData && interpolationData.length !== 0) {
+        const b = bValue; // Fixed b value
+        let red_diff = []; // Initialize arr as an empty array
+        let green_diff = [];
+        let blue_diff = [];
         for (let g = 0; g < 256; g++) {
           let red_row = []; // Initialize a new row
           let green_row = [];
@@ -27,26 +28,16 @@ function GraphContainer({ diffFile, interpolationData, bValue }) {
           }
           red_diff.push(red_row); // Add the row to the arr
           green_diff.push(green_row);
-          blue_diff.push(blue_row)
+          blue_diff.push(blue_row);
+          setSurfacePlotR(red_diff);
+          setSurfacePlotG(green_diff);
+          setSurfacePlotB(blue_diff);
         }
-      }else{
-          let zeros = [0]; // Initialize a new row
-          
-          // for (let r = 0; r < 256; r++) {
-          //   red_row.push(0); // Add the value to the row
-          //   green_row.push(0); // Add the value to the row
-          //   blue_row.push(0); // Add the value to the row
-          // }
-          red_diff.push(zeros); // Add the row to the arr
-          green_diff.push(zeros);
-          blue_diff.push(zeros)
       }
       
         // Now arr is a 2D array where arr[r][g] = interpolationData[r][g][b][0]
         // You can use arr as needed here
-        setSurfacePlotR(red_diff)
-        setSurfacePlotG(green_diff)
-        setSurfacePlotB(blue_diff)
+        
       
     }
   calculate()
