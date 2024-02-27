@@ -6,7 +6,7 @@ import axios from "axios";
 import "../styles/Upload.css";
 
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { Button, Slider, Col, Row, InputNumber, ConfigProvider, Tour } from 'antd'
+import { Button, Slider, Col, InputNumber, ConfigProvider, Tour } from 'antd'
 import { useInterpolationData } from '../InterpolationDataContext';
 
 /* eslint-disable import/no-webpack-loader-syntax */
@@ -28,7 +28,6 @@ export default function Upload() {
   const ref1 = useRef(null);
   const ref2 = useRef(null);
   const ref3 = useRef(null);
-  const ref4 = useRef(null);
   const ref5 = useRef(null);
   const ref6 = useRef(null);
 
