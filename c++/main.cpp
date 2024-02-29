@@ -24,6 +24,7 @@ int frame_height;
 int frame_width;
 int frame_length = 50;
 int color_step = 15;
+bool show_webcam = false;
 vector<vector<vector<bool>>> processed_colors(256, vector<vector<bool>>(256, vector<bool>(256)));
 const uint8_t numConsumers = 16;
 
@@ -77,7 +78,9 @@ void producer(std::promise<void>& readyPromise) {
     bool firstFrameRead = false;
     while (!frameQueue.stopped()) {
         stream.read(frame);
-        imshow("Webcam Output", frame);
+        if (show_webcam){
+            imshow("Webcam Output", frame);
+        }
         frameQueue.push(frame.clone());
         if (frame.empty()) {
             continue; // Skip if the frame is empty
@@ -184,7 +187,9 @@ int main(int argc, char* argv[]) {
     // Finding color step from command line arguements
     for (int i = 1; i < argc; ++i) { // Start from 1 to skip the program name
         std::string arg = argv[i];
-        if ((arg == "-c" || arg == "--color-step") && i + 1 < argc) { // Check for the flag and ensure there's an argument after it
+        if ((arg == "-s" || arg == "--show-webcam")){
+            show_webcam = true;
+        }else if ((arg == "-c" || arg == "--color-step") && i + 1 < argc) { // Check for the flag and ensure there's an argument after it
             color_step = std::atoi(argv[++i]); // Convert next argument to integer and increment i
         } else {
             std::cerr << "Unknown option: " << arg << std::endl;
