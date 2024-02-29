@@ -219,6 +219,7 @@ export default function Calibration() {
             size={100}
           />
         </div>}
+        {!calibrating && 
         <div className="button-container">
           <Button
             icon={<CaretRightOutlined />}
@@ -247,6 +248,7 @@ export default function Calibration() {
             Help
           </Button>
         </div>
+        }
         <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
       </div>
     </ConfigProvider>
