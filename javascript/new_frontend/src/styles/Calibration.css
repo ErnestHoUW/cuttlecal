@@ -5,6 +5,11 @@
     justify-content: center;
 }
 
+.container{
+    bottom: 0px;
+    position: fixed;
+}
+
 .button-container {
     display: flex;
     bottom: 20%;

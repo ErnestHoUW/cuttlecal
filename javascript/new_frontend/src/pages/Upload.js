@@ -94,7 +94,6 @@ export default function Upload() {
 
   useEffect(() => {
     const worker = new Worker('../workers/parserWorker.js');
-    const start = performance.now();
 
     worker.onmessage = function(e) {
         const { success, data, error } = e.data;

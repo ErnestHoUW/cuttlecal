@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import QRCode from "qrcode.react";
 import { QuestionCircleOutlined, DownloadOutlined, CaretRightOutlined } from '@ant-design/icons';
-import { Button, ConfigProvider, Tour } from "antd";
+import { Button, ConfigProvider, Tour, Progress } from "antd";
 import axios from "axios";
 import "../styles/Calibration.css";
 
@@ -201,7 +201,7 @@ export default function Calibration() {
           height: `calc(100vh - 56px)`,
         }}
       >
-        {showQR &&<div
+        {showQR && <div
           style={{
             position: "absolute",
             top: "50%",
@@ -213,43 +213,55 @@ export default function Calibration() {
           }}
           ref={ref2}
         >
-           <QRCode
+          <QRCode
             value={JSON.stringify(color).slice(1, -1)}
             level={"H"}
             size={100}
           />
         </div>}
-        {!calibrating && 
-        <div className="button-container">
-          <Button
-            icon={<CaretRightOutlined />}
-            onClick={() => handleStartMeasurement()}
-            size="large"
-            type="primary"
-            ref={ref3}
-          >
-            Start
-          </Button>
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={() => downloadCSV()}
-            disabled={!csvAvailable}
-            description="download"
-            type="primary"
-            size="large"
-            ref={ref4}
-          >
-            Download
-          </Button>
-          <Button icon={<QuestionCircleOutlined />} type="primary"
-            size="large"
-            onClick={() => setOpen(true)}
-          >
-            Help
-          </Button>
-        </div>
+        {!calibrating &&
+          <div className="button-container">
+            <Button
+              icon={<CaretRightOutlined />}
+              onClick={() => handleStartMeasurement()}
+              size="large"
+              type="primary"
+              ref={ref3}
+            >
+              Start
+            </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={() => downloadCSV()}
+              disabled={!csvAvailable}
+              description="download"
+              type="primary"
+              size="large"
+              ref={ref4}
+            >
+              Download
+            </Button>
+            <Button icon={<QuestionCircleOutlined />} type="primary"
+              size="large"
+              onClick={() => setOpen(true)}
+            >
+              Help
+            </Button>
+          </div>
         }
+
+        <div className="container">
+          <Progress
+            percent={calibrationColors.length === 0 ? 0 : (index*100 / calibrationColors.length).toFixed(2)}
+            status="active"
+            strokeColor={{
+              from: '#108ee9',
+              to: '#87d068',
+            }}
+          />
+        </div>
         <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
+
       </div>
     </ConfigProvider>
   );
