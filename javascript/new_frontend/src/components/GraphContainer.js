@@ -7,7 +7,7 @@ function GraphContainer({ diffFile, interpolationData, bValue }) {
   const [surfacePlotR, setSurfacePlotR] = useState([[0]])
   const [surfacePlotG, setSurfacePlotG] = useState([[0]])
   const [surfacePlotB, setSurfacePlotB] = useState([[0]])
-  const [maxDiff, setMaxDiff] = useState(50);
+  const [maxDiff, setMaxDiff] = useState(45);
 
 
   useEffect(() => {
@@ -18,7 +18,7 @@ function GraphContainer({ diffFile, interpolationData, bValue }) {
         let red_diff = []; // Initialize arr as an empty array
         let green_diff = [];
         let blue_diff = [];
-        let max = 5;
+        let max = 45;
         for (let g = 0; g < 256; g++) {
           let red_row = []; // Initialize a new row
           let green_row = [];
