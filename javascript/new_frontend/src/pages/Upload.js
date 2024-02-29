@@ -141,7 +141,7 @@ useEffect(() => {
         }}
       >
         <GraphContainer bValue={debouncedBValue} diffFile={diffFile} interpolationData={interpolationData} ref={ref2}/>
-        <div style={{ display: "flex", gap: "30px" }}>
+        <div style={{ display: "flex", gap: "30px"}}>
           <div ref={ref3} className="button-containerr">
             <div >{fileA?.name || "No File Selected"}</div>
             <FileUpload file={fileA} setFile={setFileA} fileType="CSV" />

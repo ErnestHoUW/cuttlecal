@@ -12,7 +12,8 @@
     flex-direction: column;
     flex-wrap: wrap;
     height: 100px;
-    width: 500px;
+    width:  calc(100% + 3 * 30px);
+    padding: 0 30px;
     align-items: center;
 }
 
