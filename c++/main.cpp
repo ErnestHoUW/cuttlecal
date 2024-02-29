@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
     // Camera Settings
     cout << "hello1" << endl;
     VideoCapture stream(0, CAP_DSHOW);
-    stream.set(CAP_PROP_SETTINGS, 1);
+    //stream.set(CAP_PROP_SETTINGS, 1);
 
     
     
