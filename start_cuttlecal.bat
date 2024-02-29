@@ -8,7 +8,7 @@ if exist "build\Debug\*" xcopy /s /y "build\Debug\*" "javascript\backend\calibra
 start "Node.js Server" node javascript/backend/mock_http.js
 
 :: Navigate to the frontend directory
-cd javascript/frontend
+cd javascript/new_frontend
 
 :: Start npm install followed by npm start in the background
 start /b cmd /c "npm install && npm start"

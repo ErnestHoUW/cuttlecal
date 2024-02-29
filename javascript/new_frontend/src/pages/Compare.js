@@ -67,12 +67,12 @@ export default function Compare() {
     <div className="panel" style={{ display: "flex", flexDirection: "column", height: "100vh-56px" }}>
       <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
         <div
-          style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: "50vw" }}
+          style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: "49vw" }}
           ref={ref2}
         >
         </div>
         <div
-          style={{ flexGrow: 1, background: panelBColor, height: "50vh", width: "50vw" }}
+          style={{ flexGrow: 1, background: panelBColor, height: "50vh", width: "49vw" }}
           ref={ref3}
         >
         </div>

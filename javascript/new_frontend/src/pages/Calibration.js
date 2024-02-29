@@ -170,12 +170,18 @@ export default function Calibration() {
 
   useEffect(() => {
     async function pollCSV() {
+      try {
       const response = await axios.get(url + "/checkCSV");
       const data = response.data;
       if (data.result) {
         setCsvAvailable(true);
       }
       else {
+        setCsvAvailable(false);
+        setTimeout(() => pollCSV(), 1000);
+      }
+    }
+    catch(e) {
         setCsvAvailable(false);
         setTimeout(() => pollCSV(), 1000);
       }
