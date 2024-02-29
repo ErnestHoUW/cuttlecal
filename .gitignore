@@ -13,7 +13,7 @@ CMakeLists.txt.user
 *.csv
 compile_commands.json
 
-array_data.json
+array_data*.json
 
 # dependencies
 /measurements/*

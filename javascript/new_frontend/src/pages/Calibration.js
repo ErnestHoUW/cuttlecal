@@ -15,6 +15,7 @@ export default function Calibration() {
   const [timeInterval, setTimeInterval] = useState(5);
   const [csvAvailable, setCsvAvailable] = useState(false);
   const [open, setOpen] = useState(false);
+  const [showQR, setShowQR] = useState(true);
 
   const ref1 = useRef(null);
   const ref2 = useRef(null);
@@ -53,6 +54,7 @@ export default function Calibration() {
   ];
 
   function handleStartMeasurement() {
+    setShowQR(false);
     try {
       axios.get(url + "/startCalibration");
     } catch (error) {
@@ -86,6 +88,7 @@ export default function Calibration() {
         const response = await axios.get(url + "/colors");
         const data = response.data;
         if (Array.isArray(data.colors) && data.colors.length > 0) {
+          setShowQR(true);
           setCalibrationColors(data.colors);
           setTimeInterval(data.frame_length);
           console.log(data.frame_length);
@@ -119,6 +122,7 @@ export default function Calibration() {
         } else {
           setCalibrationColors([]);
           setColor("127, 127, 127");
+          setShowQR(false);
           //setCalibrating(false);
           clearInterval(interval);
 
@@ -139,6 +143,7 @@ export default function Calibration() {
                 const data = response.data;
                 if (!data.calibrating) {
                   setCalibrating(false); // Stop the color change
+                  setShowQR(true);
                 } else {
                   // If still calibrating, check again after 1 second
                   setTimeout(checkCalibrationStatus, 1000);
@@ -176,7 +181,7 @@ export default function Calibration() {
       }
     }
 
-    if (!csvAvailable&&calibrating) {
+    if (!csvAvailable) {
       pollCSV();
     }
   }, [csvAvailable])
@@ -196,7 +201,7 @@ export default function Calibration() {
           height: `calc(100vh - 56px)`,
         }}
       >
-        <div
+        {showQR &&<div
           style={{
             position: "absolute",
             top: "50%",
@@ -208,12 +213,12 @@ export default function Calibration() {
           }}
           ref={ref2}
         >
-          <QRCode
+           <QRCode
             value={JSON.stringify(color).slice(1, -1)}
             level={"H"}
             size={100}
           />
-        </div>
+        </div>}
         <div className="button-container">
           <Button
             icon={<CaretRightOutlined />}
