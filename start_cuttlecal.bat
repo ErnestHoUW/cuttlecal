@@ -1,41 +1,34 @@
 @echo off
 setlocal
 
+:: Check if the build directory exists and copy files if it does
 if exist "build\Debug\*" xcopy /s /y "build\Debug\*" "javascript\backend\calibrator\"
 
-:: Start the Node.js server in a new window
-start "Node.js Server" node javascript/backend/mock_http.js
+:: Start the Node.js server in a new window and capture its PID
+start "Node.js Server" cmd /c "node javascript/backend/mock_http.js & echo %^pid% > node.pid"
 
-:: Navigate to the frontend directory and run npm install followed by npm start in the background
-@REM cd javascript/frontend
-@REM start /b cmd /c "npm install && npm start"
+:: Navigate to the frontend directory
+cd javascript/frontend
+
+:: Start npm install and npm start in the background and capture its PID
+start /b cmd /c "npm start & echo %^pid% > npm.pid"
 
 :: Wait for a key press to terminate the script and its child processes
 echo Press any key to terminate the server and exit...
 pause > nul
 
-:: Kill the specific Node.js server window
-taskkill /fi "WINDOWTITLE eq Node.js Server" /f
+:: Retrieve PIDs from files and kill the processes
+for /f %%i in ('type "..\node.pid"') do set NODE_PID=%%i
+for /f %%i in ('type "npm.pid"') do set NPM_PID=%%i
+
+:: Kill the Node.js server process
+if defined NODE_PID taskkill /pid %NODE_PID% /f
+
+:: Kill the npm start process
+if defined NPM_PID taskkill /pid %NPM_PID% /f
+
+:: Cleanup PID files
+del "..\node.pid"
+del "npm.pid"
 
 endlocal
-
-@REM @echo off
-@REM setlocal
-
-@REM if exist "build\Debug\*" xcopy /s /y "build\Debug\*" "javascript\backend\calibrator\"
-
-@REM :: Start the Node.js server in the background
-@REM start /b node javascript/backend/mock_http.js
-
-@REM :: Navigate to the frontend directory and run npm install followed by npm start in the background
-@REM cd javascript/frontend
-@REM start /b cmd /c "npm install && npm start"
-
-@REM :: Wait for a key press to terminate the script and its child processes
-@REM echo Press any key to terminate the server and exit...
-@REM pause > nul
-
-@REM :: Kill the Node.js server and npm start process
-@REM taskkill /im node.exe /f
-
-@REM endlocal
