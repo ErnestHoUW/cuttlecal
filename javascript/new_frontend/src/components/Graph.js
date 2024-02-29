@@ -68,7 +68,7 @@ export default function Graph({ data, title, bValue, maxDiff }) {
               xaxis: { title: 'Red Channel' },
               yaxis: { title: 'Green Channel' },
               zaxis: { title: 'Ref - Target',
-            range: [-maxDiff-5, maxDiff+5] },
+            range: [-maxDiff, maxDiff] },
             }
           }}/>
       // ) : (
