@@ -2,7 +2,7 @@ import React, { useEffect, useState }  from 'react';
 import Plot from 'react-plotly.js';
 import "../styles/Graph.css";
 
-export default function Graph({ data, title, bValue }) {
+export default function Graph({ data, title, bValue, maxDiff }) {
   const [scatter, setScatter] = useState(null)
 
 
@@ -68,7 +68,7 @@ export default function Graph({ data, title, bValue }) {
               xaxis: { title: 'Red Channel' },
               yaxis: { title: 'Green Channel' },
               zaxis: { title: 'Ref - Target',
-            range: [-50, 50] },
+            range: [-maxDiff-5, maxDiff+5] },
             }
           }}/>
       // ) : (
