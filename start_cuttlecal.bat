@@ -11,7 +11,7 @@ start "Node.js Server" node javascript/backend/mock_http.js
 cd javascript/new_frontend
 
 :: Start npm install followed by npm start in the background
-start /b cmd /c "npm install && npm start"
+start /b cmd /c "npm start"
 
 :: Wait for a key press to terminate the script and its child processes
 echo Press any key to terminate all Node.js and npm processes...
