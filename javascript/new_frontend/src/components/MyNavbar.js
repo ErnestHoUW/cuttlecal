@@ -11,6 +11,7 @@ export default function MyNavbar() {
           <Nav.Link as={Link} to="/calibration">Calibration</Nav.Link>
           <Nav.Link as={Link} to="/upload">Upload</Nav.Link>
           <Nav.Link as={Link} to="/compare">Colour Compare</Nav.Link>
+          <Nav.Link as={Link} to="/image">Image Compare</Nav.Link>
       </Nav>
     </Navbar>
   )
