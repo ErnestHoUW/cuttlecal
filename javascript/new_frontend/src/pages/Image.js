@@ -49,12 +49,12 @@ export default function ImageCompare() {
 
                             // Update pixel values
                             if (toAdd) {
-                                data[i] =   Math.max(0, Math.min(255, red + interpolationData[red][green][blue][0]));
-                                data[i + 1] = Math.max(0, Math.min(255, green+interpolationData[red][green][blue][1]));
-                                data[i + 2] = Math.max(0, Math.min(255, blue+interpolationData[red][green][blue][2]));
+                                data[i] = Math.max(0, Math.min(255, red + interpolationData[red][green][blue][0]));
+                                data[i + 1] = Math.max(0, Math.min(255, green + interpolationData[red][green][blue][1]));
+                                data[i + 2] = Math.max(0, Math.min(255, blue + interpolationData[red][green][blue][2]));
                             }
                             else {
-                                data[i] =     Math.min(255, Math.max(0, red - interpolationData[red][green][blue][0]));
+                                data[i] = Math.min(255, Math.max(0, red - interpolationData[red][green][blue][0]));
                                 data[i + 1] = Math.min(255, Math.max(0, green - interpolationData[red][green][blue][1]));
                                 data[i + 2] = Math.min(255, Math.max(0, blue - interpolationData[red][green][blue][2]));
                             }
@@ -88,36 +88,55 @@ export default function ImageCompare() {
     };
 
     return (
-        <>
+        <div className='panel' style={{ flexDirection: "column", flexGrow: 1, gap: "30px", padding: "50px" }}>
+            <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
+                {previewImage ? <img
+                    style={{
+                        height: '60vh',
+                    }}
+                    src={previewImage}
+                    alt=""
+                />
+                    :
+                    <div
+                        style={{
+                            height: '60vh',
+                        }}
+                    ></div>
+                }
+                {adjustedImage ? <img
+                    style={{
+                        height: '60vh',
+                    }}
+                    src={adjustedImage}
+                    alt=""
+                />
+                    :
+                    <div
+                        style={{
+                            height: '60vh',
+                        }}
+                    ></div>
+                }
+            </div>
+
+            <div>{!interpolationData && "No JSON Found"}</div>
             <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
                 <Upload
                     action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-
                     onChange={handlePreview}
                 >
-                    <button>Upload</button>
-
+                    <Button disabled={!interpolationData}>{"Upload"}</Button>
                 </Upload>
-                <button onClick={async () => {
+
+                <Button onClick={async () => {
                     setToAdd(!toAdd)
                     setAdjustedImage(await generateNewImage(uploadedFile))
                 }}
-                > {toAdd ? "-" : "+"}</button>
+                disabled={!interpolationData}
+                > {toAdd ? "Subtract RGB Difference" : "Add RGB Difference"}
+                </Button>
             </div>
-
-
-            {previewImage && <img
-                style={{
-                    width: '50%',
-                }}
-                src={previewImage}
-            />}
-            {adjustedImage && <img
-                style={{
-                    width: '50%',
-                }}
-                src={adjustedImage}
-            />}
-        </>
+        </div>
     );
 };

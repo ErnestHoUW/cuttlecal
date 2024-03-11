@@ -64,7 +64,7 @@ export default function Compare() {
   }
 
   return (
-    <div className="panel" style={{ display: "flex", flexDirection: "column", height: "100vh-56px" }}>
+    <div className="panel" style={{ flexDirection: "column", height: "100vh-56px", padding: "5px" }}>
       <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
         <div
           style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: "49vw" }}
@@ -77,12 +77,15 @@ export default function Compare() {
         >
         </div>
       </div>
+      <div>{!interpolationData && "No JSON Found"}</div>
       <div style={{ display: "flex", flexDirection: "row", gap: "15px", padding: "20px" }} ref={ref4}>
-        <InputNumber min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
-        <InputNumber min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
-        <InputNumber min={0} max={255} defaultValue={0} value={valueB} onChange={value => setValueB(value)} addonAfter="B" />
-        <Button onClick={() => handleButton(true)}>+</Button>
-        <Button onClick={() => handleButton(false)}>-</Button>
+        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
+        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
+        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueB} onChange={value => setValueB(value)} addonAfter="B" />
+      </div>
+      <div style={{ display: "flex", flexDirection: "row", gap: "15px", padding: "20px" }} ref={ref4}>
+        <Button onClick={() => handleButton(true)} disabled={!interpolationData}>Add RGB Difference</Button>
+        <Button onClick={() => handleButton(false)}disabled={!interpolationData}>Subtract RGB Difference</Button>
         <Button icon={<QuestionCircleOutlined />} type="default"
           onClick={() => setOpen(true)}
         >
