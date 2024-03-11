@@ -4,7 +4,7 @@ import Poster from "../images/FYDP_Poster.png"
 
 const Home = () => {
   return (
-    <div className='panel'>
+    <div style={{background: "#EFEFEF"}}>
       <img src={Poster} alt="" style={{height: "calc(100vh - 56px)"}}></img>
     </div>
   );
