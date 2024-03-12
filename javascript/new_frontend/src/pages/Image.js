@@ -20,6 +20,8 @@ export default function ImageCompare() {
     const [toAdd, setToAdd] = useState(true);
     const { interpolationData } = useInterpolationData();
 
+    const [showLeft, setShowLeft] = useState(true);
+    const [showRight, setShowRight] = useState(true);
 
     const generateNewImage = async (file) => {
         setUploadedFile(file)
@@ -90,7 +92,7 @@ export default function ImageCompare() {
     return (
         <div className='panel' style={{ flexDirection: "column", flexGrow: 1, gap: "30px", padding: "50px" }}>
             <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
-                {previewImage ? <img
+                {previewImage && showLeft ? <img
                     style={{
                         height: '60vh',
                     }}
@@ -104,7 +106,7 @@ export default function ImageCompare() {
                         }}
                     ></div>
                 }
-                {adjustedImage ? <img
+                {adjustedImage && showRight ? <img
                     style={{
                         height: '60vh',
                     }}
@@ -133,9 +135,11 @@ export default function ImageCompare() {
                     setToAdd(!toAdd)
                     setAdjustedImage(await generateNewImage(uploadedFile))
                 }}
-                disabled={!interpolationData}
+                    disabled={!interpolationData}
                 > {toAdd ? "Subtract RGB Difference" : "Add RGB Difference"}
                 </Button>
+                <Button onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
+                <Button onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
             </div>
         </div>
     );
