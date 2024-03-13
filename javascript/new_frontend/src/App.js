@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MyNavbar from './components/MyNavbar';
 import Home from './pages/Home';
@@ -5,9 +6,21 @@ import Calibration from './pages/Calibration';
 import Upload from './pages/Upload';
 import Compare from './pages/Compare';
 import ImageCompare from './pages/Image';
-import { InterpolationDataProvider } from './InterpolationDataContext'; // Import the provider
+import { InterpolationDataProvider } from './InterpolationDataContext';
+
+import PosterLeft from "./images/FYDP_Poster_Left.png";
+import PosterRight from "./images/FYDP_Poster_Right.png";
+import BlockDiagram from "./images/block_diagram.png";
 
 function App() {
+  useEffect(() => {
+    const imagesToPreload = [PosterLeft, PosterRight, BlockDiagram];
+    imagesToPreload.forEach(imageSrc => {
+      const img = new Image();
+      img.src = imageSrc;
+    });
+  }, []);
+
   return (
     <Router>
       <InterpolationDataProvider> 
@@ -25,4 +38,3 @@ function App() {
 }
 
 export default App;
-
