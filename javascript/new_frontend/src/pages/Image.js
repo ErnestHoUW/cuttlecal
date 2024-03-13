@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button, Upload } from 'antd';
+import { ExpandOutlined } from '@ant-design/icons';
 import { useInterpolationData } from '../InterpolationDataContext';
 
 
@@ -77,16 +78,69 @@ export default function ImageCompare() {
         });
     }
 
+    const previewWindowRef = useRef(null);
+    const adjustedWindowRef = useRef(null);
 
-    const handlePreview = async ({ file: file }) => {
-        if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj);
+    const openPreviewInNewWindow = () => {
+        // Close the existing preview window if it's open
+        if (previewWindowRef.current && !previewWindowRef.current.closed) {
+            previewWindowRef.current.close();
         }
-        setPreviewImage(file.url || file.preview);
+
         if (previewImage) {
-            const newImage = await generateNewImage(file.originFileObj);
-            setAdjustedImage(newImage)
+            const previewWindow = window.open();
+            if (previewWindow) {
+                previewWindow.document.write(`
+                    <style>
+                        body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
+                        img { width: 100%; height: 100%; object-fit: contain; }
+                    </style>
+                    <img src="${previewImage}" alt="Original Image">
+                `);
+                previewWindow.document.close(); // Ensure the document is fully written
+
+                // Update the reference to the new window
+                previewWindowRef.current = previewWindow;
+            } else {
+                alert('Unable to open the preview image in a new window. Please check your popup settings.');
+            }
         }
+    };
+
+    const openAdjustedInNewWindow = () => {
+        // Close the existing adjusted window if it's open
+        if (adjustedWindowRef.current && !adjustedWindowRef.current.closed) {
+            adjustedWindowRef.current.close();
+        }
+
+        if (adjustedImage) {
+            const adjustedWindow = window.open();
+            if (adjustedWindow) {
+                adjustedWindow.document.write(`
+                    <style>
+                        body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
+                        img { width: 100%; height: 100%; object-fit: contain; }
+                    </style>
+                    <img src="${adjustedImage}" alt="Adjusted Image">
+                `);
+                adjustedWindow.document.close(); // Ensure the document is fully written
+
+                // Update the reference to the new window
+                adjustedWindowRef.current = adjustedWindow;
+            } else {
+                alert('Unable to open the adjusted image in a new window. Please check your popup settings.');
+            }
+        }
+    };
+    
+    
+    
+    
+    const handlePreview = async ({ file }) => {
+        const filePreview = file.url || file.preview || await getBase64(file.originFileObj);
+        setPreviewImage(filePreview);
+        const newImage = await generateNewImage(file.originFileObj);
+        setAdjustedImage(newImage);
     };
 
     return (
@@ -140,6 +194,8 @@ export default function ImageCompare() {
                 </Button>
                 <Button onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
                 <Button onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
+                <Button onClick={openPreviewInNewWindow} disabled={!previewImage} icon={<ExpandOutlined />}>Pop Left</Button>
+                <Button onClick={openAdjustedInNewWindow} disabled={!adjustedImage} icon={<ExpandOutlined />}>Pop Right</Button>
             </div>
         </div>
     );

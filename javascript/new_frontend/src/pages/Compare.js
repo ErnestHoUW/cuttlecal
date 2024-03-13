@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react'
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, InputNumber, Tour } from "antd";
+import { ExpandOutlined } from '@ant-design/icons';
 import { useInterpolationData } from '../InterpolationDataContext';
+
 
 
 export default function Compare() {
@@ -66,6 +68,48 @@ export default function Compare() {
     }
   }
 
+  const panelAWindowRef = useRef(null);
+  const panelBWindowRef = useRef(null);
+
+  const openPanelAInNewWindow = () => {
+    if (panelAWindowRef.current && !panelAWindowRef.current.closed) {
+        panelAWindowRef.current.close();
+    }
+
+    const newWindow = window.open();
+    newWindow.document.write(`
+        <style>
+            body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
+            div { width: 100%; height: 100%; background: ${panelAColor}; }
+        </style>
+        <div></div>
+    `);
+    newWindow.document.title = "Original Digital Colour"; // Set the window title here
+    newWindow.document.close();
+
+    panelAWindowRef.current = newWindow;
+  };
+
+  const openPanelBInNewWindow = () => {
+    if (panelBWindowRef.current && !panelBWindowRef.current.closed) {
+        panelBWindowRef.current.close();
+    }
+
+    const newWindow = window.open();
+    newWindow.document.write(`
+        <style>
+            body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; }
+            div { width: 100%; height: 100%; background: ${panelBColor}; }
+        </style>
+        <div></div>
+    `);
+    newWindow.document.title = "Calibrated Colour"; // Set the window title here
+    newWindow.document.close();
+
+    panelBWindowRef.current = newWindow;
+  };
+
+
   return (
     <div className="panel" style={{ flexDirection: "column", height: "100vh-56px", padding: "5px" }}>
       <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
@@ -99,6 +143,8 @@ export default function Compare() {
         <Button onClick={() => handleButton(false)} disabled={!interpolationData}>Subtract RGB Difference</Button>
         <Button onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
         <Button onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
+        <Button onClick={openPanelAInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Left</Button>
+        <Button onClick={openPanelBInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Right</Button>
         <Button icon={<QuestionCircleOutlined />} type="default"
           onClick={() => setOpen(true)}
         >
