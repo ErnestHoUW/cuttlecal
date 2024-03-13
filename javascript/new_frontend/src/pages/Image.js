@@ -28,6 +28,7 @@ export default function ImageCompare() {
     const ref4 = useRef(null);
     const ref5 = useRef(null);
     const ref6 = useRef(null);
+    const ref7 = useRef(null);
 
     const steps = [
         {
@@ -62,6 +63,11 @@ export default function ImageCompare() {
             title: "Show/Hide Images",
             description: "Use these buttons to show or hide the left/right images",
             target: () => ref6.current
+        },
+        {
+            title: "Pop Images",
+            description: "Use these buttons to open the left/right image in another tab",
+            target: () => ref7.current
         }
     ]
 
@@ -173,10 +179,10 @@ export default function ImageCompare() {
             }
         }
     };
-    
-    
-    
-    
+
+
+
+
     const handlePreview = async ({ file }) => {
         const filePreview = file.url || file.preview || await getBase64(file.originFileObj);
         setPreviewImage(filePreview);
@@ -230,7 +236,7 @@ export default function ImageCompare() {
                     onChange={handlePreview}
                     showUploadList={false}
                 >
-                    <Button style={{marginRight: "15px"}} ref={ref5} disabled={!interpolationData}>{"Upload"}</Button>
+                    <Button style={{ marginRight: "15px" }} ref={ref5} disabled={!interpolationData}>{"Upload"}</Button>
                 </Upload>
                 <Button onClick={async () => {
                     setToAdd(!toAdd)
@@ -245,8 +251,10 @@ export default function ImageCompare() {
                     <Button style={{ marginRight: "15px" }} onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
                     <Button style={{ marginRight: "15px" }} onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
                 </div>
-                <Button style={{ marginRight: "15px" }} onClick={openPreviewInNewWindow} disabled={!previewImage} icon={<ExpandOutlined />}>Pop Left</Button>
-                <Button style={{ marginRight: "15px" }} onClick={openAdjustedInNewWindow} disabled={!adjustedImage} icon={<ExpandOutlined />}>Pop Right</Button>
+                <div ref={ref7}>
+                    <Button style={{ marginRight: "15px" }} onClick={openPreviewInNewWindow} disabled={!previewImage} icon={<ExpandOutlined />}>Pop Left</Button>
+                    <Button style={{ marginRight: "15px" }} onClick={openAdjustedInNewWindow} disabled={!adjustedImage} icon={<ExpandOutlined />}>Pop Right</Button>
+                </div>
                 <Button icon={<QuestionCircleOutlined />} type="default"
                     onClick={() => setOpen(true)}
                 >
