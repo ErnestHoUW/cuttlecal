@@ -24,6 +24,9 @@ export default function Compare() {
   const ref2 = useRef(null);
   const ref3 = useRef(null);
   const ref4 = useRef(null);
+  const ref5 = useRef(null);
+  const ref6 = useRef(null);
+  const ref7 = useRef(null);
 
   const steps = [
     {
@@ -49,6 +52,22 @@ export default function Compare() {
       placement: "bottom",
       target: () => ref4.current
     },
+    {
+      title: "Subtract/Add RGB Difference",
+      description: "Use this button to adjust the difference between the monitors' colors at that color.",
+      placement: "bottom",
+      target: () => ref5.current
+    },
+    {
+      title: "Show/Hide Images",
+      description: "Use these buttons to show or hide the left/right images",
+      target: () => ref6.current
+    },
+    {
+      title: "Pop Images",
+      description: "Use these buttons to open the left/right image in another tab",
+      target: () => ref7.current
+    }
   ]
 
 
@@ -73,7 +92,7 @@ export default function Compare() {
 
   const openPanelAInNewWindow = () => {
     if (panelAWindowRef.current && !panelAWindowRef.current.closed) {
-        panelAWindowRef.current.close();
+      panelAWindowRef.current.close();
     }
 
     const newWindow = window.open();
@@ -92,7 +111,7 @@ export default function Compare() {
 
   const openPanelBInNewWindow = () => {
     if (panelBWindowRef.current && !panelBWindowRef.current.closed) {
-        panelBWindowRef.current.close();
+      panelBWindowRef.current.close();
     }
 
     const newWindow = window.open();
@@ -115,7 +134,7 @@ export default function Compare() {
       <div style={{ display: "flex", flexGrow: 1 }}>
         {showLeft &&
           <div
-            style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: showRight ? "49vw" : "100vw", marginRight: showRight ? "30px" : "0px"}}
+            style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: showRight ? "49vw" : "100vw", marginRight: showRight ? "30px" : "0px" }}
             ref={ref2}
           >
           </div>
@@ -134,17 +153,23 @@ export default function Compare() {
       </div>
       <div>{!interpolationData && "No JSON Found"}</div>
       <div style={{ display: "flex", flexDirection: "row", padding: "20px" }} ref={ref4}>
-        <InputNumber style={{marginRight: "15px"}} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
-        <InputNumber style={{marginRight: "15px"}} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
+        <InputNumber style={{ marginRight: "15px" }} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
+        <InputNumber style={{ marginRight: "15px" }} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
         <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueB} onChange={value => setValueB(value)} addonAfter="B" />
       </div>
-      <div style={{ display: "flex", flexDirection: "row", padding: "20px" }} ref={ref4}>
-        <Button style={{marginRight: "15px"}} onClick={() => handleButton(true)} disabled={!interpolationData}>Add RGB Difference</Button>
-        <Button style={{marginRight: "15px"}} onClick={() => handleButton(false)} disabled={!interpolationData}>Subtract RGB Difference</Button>
-        <Button style={{marginRight: "15px"}} onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
-        <Button style={{marginRight: "15px"}} onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
-        <Button style={{marginRight: "15px"}} onClick={openPanelAInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Left</Button>
-        <Button style={{marginRight: "15px"}} onClick={openPanelBInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Right</Button>
+      <div style={{ display: "flex", flexDirection: "row", padding: "20px" }}>
+        <div ref={ref5}>
+          <Button style={{ marginRight: "15px" }} onClick={() => handleButton(true)} disabled={!interpolationData}>Add RGB Difference</Button>
+          <Button style={{ marginRight: "15px" }} onClick={() => handleButton(false)} disabled={!interpolationData}>Subtract RGB Difference</Button>
+        </div>
+        <div ref={ref6}>
+          <Button style={{ marginRight: "15px" }} onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
+          <Button style={{ marginRight: "15px" }} onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
+        </div>
+        <div ref={ref7}>
+          <Button style={{ marginRight: "15px" }} onClick={openPanelAInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Left</Button>
+          <Button style={{ marginRight: "15px" }} onClick={openPanelBInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Right</Button>
+        </div>
         <Button icon={<QuestionCircleOutlined />} type="default"
           onClick={() => setOpen(true)}
         >
