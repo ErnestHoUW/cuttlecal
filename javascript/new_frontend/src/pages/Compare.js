@@ -157,14 +157,23 @@ export default function Compare() {
       <div>{!interpolationData && "No JSON Found"}</div>
       <div style={{ display: "flex", flexDirection: "row", padding: "20px" }} ref={ref4}>
         <InputNumber style={{ marginRight: "15px" }} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => {
+          if (!value){
+            value = 0
+          }
           setValueR(value)
           handleButton()
         }} addonAfter="R" />
         <InputNumber style={{ marginRight: "15px" }} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => {
+          if (!value){
+            value = 0
+          }
           setValueG(value)
           handleButton()
         }} addonAfter="G" />
         <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueB} onChange={value => {
+          if (!value){
+            value = 0
+          }
           setValueB(value)
           handleButton()
         }} addonAfter="B" />
