@@ -2,7 +2,7 @@ import React, { useEffect, useState }  from 'react';
 import Plot from 'react-plotly.js';
 import "../styles/Graph.css";
 
-export default function Graph({ data, title, bValue, maxDiff }) {
+export default function Graph({ data, title, bValue, maxDiff, RGBIncrement }) {
   const [scatter, setScatter] = useState(null)
 
 
@@ -16,7 +16,7 @@ export default function Graph({ data, title, bValue, maxDiff }) {
         mode: 'markers',
         type: 'scatter3d',
         marker: {
-          size: 1,
+          size: RGBIncrement,
           color: [],
           opacity: 1
         }
@@ -25,17 +25,15 @@ export default function Graph({ data, title, bValue, maxDiff }) {
     
       data.forEach((row, y) => {
         row.forEach((z, x) => {
-          scatterData.x.push(x);
-          scatterData.y.push(y);
+          scatterData.x.push(x*RGBIncrement);
+          scatterData.y.push(y*RGBIncrement);
           scatterData.z.push(z);
-          scatterData.marker.color.push(`rgb(${x}, ${y}, ${bValue})`); // Color logic based on position
+          scatterData.marker.color.push(`rgb(${x*RGBIncrement}, ${y*RGBIncrement}, ${bValue})`); // Color logic based on position
         });
       });
       setScatter(scatterData)
-      
   }
-}, [data])
-
+}, [data, RGBIncrement])
   return (
     <div>
       {//data ? (
@@ -43,6 +41,8 @@ export default function Graph({ data, title, bValue, maxDiff }) {
           data={[
             {
               z: data,
+              y: Array.from({length: data.length}, (_, index) => index*RGBIncrement),
+              x: Array.from({length: data.length}, (_, index) => index*RGBIncrement),
               type: 'surface',
               showscale: false,
               colorscale: [
@@ -71,9 +71,6 @@ export default function Graph({ data, title, bValue, maxDiff }) {
             range: [-maxDiff, maxDiff] },
             }
           }}/>
-      // ) : (
-      //  <h1>Please upload a file</h1>
-      // )}
          } </div>
   );
 }

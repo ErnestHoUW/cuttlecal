@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button, Upload, Tour } from 'antd';
 import { QuestionCircleOutlined, ExpandOutlined } from '@ant-design/icons';
 import { useInterpolationData } from '../InterpolationDataContext';
+import DefaultImage from '../images/oceanandfish.jpg';
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -29,6 +30,20 @@ export default function ImageCompare() {
     const ref5 = useRef(null);
     const ref6 = useRef(null);
     const ref7 = useRef(null);
+
+    useEffect(() => {
+        async function bruh() {
+            if (interpolationData) {
+                const response = await fetch(DefaultImage);
+                const blob = await response.blob();
+                
+                setPreviewImage(DefaultImage);
+                const newImage = await generateNewImage(blob);
+                setAdjustedImage(newImage);
+            }
+        }
+        bruh();
+    }, [])
 
     const steps = [
         {
@@ -195,7 +210,8 @@ export default function ImageCompare() {
             <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
                 {previewImage && showLeft ? <img
                     style={{
-                        height: '60vh',
+                        // height: '60vh',
+                        width: '49vw',
                     }}
                     src={previewImage}
                     alt=""
@@ -212,7 +228,8 @@ export default function ImageCompare() {
                 }
                 {adjustedImage && showRight ? <img
                     style={{
-                        height: '60vh',
+                        // height: '60vh',
+                        width: '49vw',
                     }}
                     src={adjustedImage}
                     alt=""
