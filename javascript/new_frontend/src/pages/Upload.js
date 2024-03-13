@@ -6,7 +6,7 @@ import axios from "axios";
 import "../styles/Upload.css";
 
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { Button, Slider, Col, InputNumber, ConfigProvider, Tour } from 'antd'
+import { Button, Slider, Col, Row, InputNumber, ConfigProvider, Tour } from 'antd'
 import { useInterpolationData } from '../InterpolationDataContext';
 
 /* eslint-disable import/no-webpack-loader-syntax */
@@ -20,7 +20,9 @@ export default function Upload() {
   const [fileJSON, setFileJSON] = useState(null)
   const [diffFile, setDiffFile] = useState(null);
   const [bValue, setBValue] = useState(128);
-  const [debouncedBValue, setDebouncedBValue] = useState(128)
+  const [debouncedBValue, setDebouncedBValue] = useState(128);
+  const [RGBIncrement, setRGBIncrement] = useState(4);
+  const [debouncedRGBIncrement, setDebouncedRGBIncrement] = useState(4)
   const [loading, setLoading] = useState(false);
   const { interpolationData, setInterpolationData } = useInterpolationData();
   const [open, setOpen] = useState(false);
@@ -28,6 +30,7 @@ export default function Upload() {
   const ref1 = useRef(null);
   const ref2 = useRef(null);
   const ref3 = useRef(null);
+  const ref4 = useRef(null);
   const ref5 = useRef(null);
   const ref6 = useRef(null);
 
@@ -35,12 +38,6 @@ export default function Upload() {
     {
       title: 'Upload Page',
       description: "This page generates 3D plots to visualize color differences between two monitors.",
-      cover: (
-        <img
-          alt="tour.png"
-          src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
-        />
-      ),
       target: () => ref1.current,
     },
     {
@@ -55,8 +52,14 @@ export default function Upload() {
       placement: "top"
     },
     {
-      title: 'B Value',
-      description: "Adjust the B value using the slider or input field",
+      title: 'Blue Value',
+      description: "Adjust the Blue RGB value using the slider or input field.",
+      target: () => ref4.current,
+      placement: "top"
+    },
+    {
+      title: 'RGB Increment',
+      description: "Adjust granularity of the 3D graphs by setting an increment in between RGB points to improve performance.",
       target: () => ref5.current,
       placement: "top"
     },
@@ -95,13 +98,13 @@ export default function Upload() {
   useEffect(() => {
     const worker = new Worker('../workers/parserWorker.js');
 
-    worker.onmessage = function(e) {
-        const { success, data, error } = e.data;
-        if (success) {
-            setInterpolationData(data);
-        } else {
-            console.error('Error parsing JSON:', error);
-        }
+    worker.onmessage = function (e) {
+      const { success, data, error } = e.data;
+      if (success) {
+        setInterpolationData(data);
+      } else {
+        console.error('Error parsing JSON:', error);
+      }
     };
 
     if (fileJSON) {
@@ -109,20 +112,30 @@ export default function Upload() {
     }
 
     return () => {
-        worker.terminate();
+      worker.terminate();
     };
-}, [fileJSON]);
+  }, [fileJSON]);
 
 
-useEffect(() => {
-  const delayDebounceFn = setTimeout(() => {
-    setDebouncedBValue(bValue);
-  }, 1000);
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setDebouncedBValue(bValue);
+    }, 1000);
 
-  return () => {
-    clearTimeout(delayDebounceFn);
-  }
-}, [bValue]);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+  }, [bValue]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setDebouncedRGBIncrement(RGBIncrement);
+    }, 1000);
+
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+  }, [RGBIncrement]);
 
   return (
     <ConfigProvider
@@ -137,12 +150,13 @@ useEffect(() => {
       <div
         className="panel"
         style={{
-          height: `calc(100vh - 56px)`,
+          height: `calc(100vh - 106px)`,
+          gap: "10px"
         }}
       >
-        <GraphContainer bValue={debouncedBValue} diffFile={diffFile} interpolationData={interpolationData} ref={ref2}/>
-        <div style={{ display: "flex", gap: "30px"}}>
-          <div ref={ref3} className="button-containerr">
+        <GraphContainer bValue={debouncedBValue} diffFile={diffFile} interpolationData={interpolationData} ref={ref2} RGBIncrement={debouncedRGBIncrement} />
+        <div style={{ display: "flex", marginRight: "30px" }}>
+          <div style={{ marginRight: "15px" }} ref={ref3} className="button-containerr">
             <div >{fileA?.name || "No File Selected"}</div>
             <FileUpload file={fileA} setFile={setFileA} fileType="CSV" />
             <div>{fileB?.name || "No File Selected"}</div>
@@ -150,39 +164,67 @@ useEffect(() => {
             <div>{fileJSON?.name || "No JSON File Selected"}</div>
             <FileUpload file={fileJSON} setFile={setFileJSON} fileType="JSON" />
           </div>
-          <>
-            <div  style={{ display: "flex", flexDirection: "column", gap: "15px"}}>
-              <h6 ref={ref5}>Enter B Value</h6>
-              <div style={{ display: "flex", flexDirection: "row" }}>
-                <Col span={18}>
-                  <Slider
-                    min={0}
-                    max={255}
-                    value={bValue}
-                    onChange={value => setBValue(value)}
-                    railSize={100}
-                    width="100px"
-                  />
-                </Col>
-                <Col span={4}>
-                  <InputNumber
-                    min={0}
-                    max={255}
-                    style={{
-                      margin: '0 16px',
-                    }}
-                    value={bValue}
-                    onChange={value => setBValue(value)}
-                  />
-                </Col>
-              </div>
-            </div>
-          </>
         </div>
 
-        <div style={{ display: "flex", gap: "30px" }}>
+        <Col flex="auto">
+          <Row>
+            <div ref={ref4}>Blue value</div>
+            <Col span={18}>
+              <Slider
+                min={0}
+                max={255}
+                value={bValue}
+                onChange={value => setBValue(value)}
+                railSize={100}
+                width="100px"
+              />
+            </Col>
+            <Col span={2}>
+              <InputNumber
+                min={0}
+                max={255}
+                style={{
+                  margin: '0 12px',
+                  width: '80px'
+                }}
+                value={bValue}
+                onChange={value => setBValue(value)}
+                railSize={100}
+                width="100px"
+              />
+            </Col>
+          </Row>
+
+          <Row>
+            <div ref={ref5}>RGB Increment</div>
+            <Col span={18}>
+              <Slider
+                min={1}
+                max={4}
+                value={RGBIncrement}
+                onChange={value => setRGBIncrement(value)}
+                railSize={100}
+                width="100px"
+              />
+            </Col>
+            <Col span={2}>
+              <InputNumber
+                  min={1}
+                  max={4}
+                style={{
+                  margin: '0 12px',
+                  width: '80px'
+                }}
+                value={RGBIncrement}
+                onChange={value => setRGBIncrement(value)}
+              />
+            </Col>
+          </Row>
+        </Col>
+        
+        <div style={{ display: "flex", marginRight: "30px" }}>
           {!loading ?
-            <Button ref={ref6} onClick={() => handleCompareButton()} disabled={!fileA || !fileB} size="large">Compare</Button>
+            <Button style={{ marginRight: "15px" }} ref={ref6} onClick={() => handleCompareButton()} disabled={!fileA || !fileB} size="large">Compare</Button>
             : <div>Loading...</div>}
           <Button icon={<QuestionCircleOutlined />} type="default"
             size="large"
@@ -191,7 +233,9 @@ useEffect(() => {
             Help
           </Button>
         </div>
+
         <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
+
       </div>
     </ConfigProvider>
   )

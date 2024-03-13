@@ -25,13 +25,7 @@ export default function Calibration() {
     {
       title: 'Calibration Page',
       description: 'Welcome to the Calibration Page! This crucial part of CuttleCal is designed specifically for reading and analyzing your monitors color output. Here, you will embark on the first step towards achieving perfect color harmony across your devices. Please follow the instructions carefully to ensure an accurate calibration process.',
-      placement: 'left',
-      cover: (
-        <img
-          alt="tour.png"
-          src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
-        />
-      ),
+      placement: 'center',
       target: () => ref1.current,
     },
     {

@@ -20,6 +20,8 @@ export default function Compare() {
 
   const [open, setOpen] = useState(false);
 
+  const [toAdd, setToAdd] = useState(true);
+
   const ref1 = useRef(null);
   const ref2 = useRef(null);
   const ref3 = useRef(null);
@@ -71,10 +73,11 @@ export default function Compare() {
   ]
 
 
-  function handleButton(toAdd) {
+  function handleButton() {
     setPanelAColor(`rgb(${valueR}, ${valueG}, ${valueB}, 1)`)
     if (interpolationData) {
-      let offsetArr = interpolationData[valueR][valueG][valueB]
+      let offsetArr = interpolationData[valueR][valueG][valueB];
+
       if (toAdd) {
         setPanelBColor(`rgb(${valueR + offsetArr[0]}, ${valueG + offsetArr[1]}, ${valueB + offsetArr[2]}, 1)`)
       }
@@ -153,14 +156,34 @@ export default function Compare() {
       </div>
       <div>{!interpolationData && "No JSON Found"}</div>
       <div style={{ display: "flex", flexDirection: "row", padding: "20px" }} ref={ref4}>
-        <InputNumber style={{ marginRight: "15px" }} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
-        <InputNumber style={{ marginRight: "15px" }} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
-        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueB} onChange={value => setValueB(value)} addonAfter="B" />
+        <InputNumber style={{ marginRight: "15px" }} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => {
+          if (!value){
+            value = 0
+          }
+          setValueR(value)
+          handleButton()
+        }} addonAfter="R" />
+        <InputNumber style={{ marginRight: "15px" }} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => {
+          if (!value){
+            value = 0
+          }
+          setValueG(value)
+          handleButton()
+        }} addonAfter="G" />
+        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueB} onChange={value => {
+          if (!value){
+            value = 0
+          }
+          setValueB(value)
+          handleButton()
+        }} addonAfter="B" />
       </div>
       <div style={{ display: "flex", flexDirection: "row", padding: "20px" }}>
         <div ref={ref5}>
-          <Button style={{ marginRight: "15px" }} onClick={() => handleButton(true)} disabled={!interpolationData}>Add RGB Difference</Button>
-          <Button style={{ marginRight: "15px" }} onClick={() => handleButton(false)} disabled={!interpolationData}>Subtract RGB Difference</Button>
+          <Button style={{ marginRight: "15px" }} onClick={() => {
+            setToAdd(!toAdd);
+            handleButton()
+          }} disabled={!interpolationData}>{toAdd ? "Add RGB Difference" : "Subtract RGB Difference"}</Button>
         </div>
         <div ref={ref6}>
           <Button style={{ marginRight: "15px" }} onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>

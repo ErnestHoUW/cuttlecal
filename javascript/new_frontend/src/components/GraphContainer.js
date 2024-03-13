@@ -3,7 +3,7 @@ import Graph from './Graph'
 
 import "../styles/GraphContainer.css";
 
-function GraphContainer({ diffFile, interpolationData, bValue }) {
+function GraphContainer({ diffFile, interpolationData, bValue, RGBIncrement }) {
   const [surfacePlotR, setSurfacePlotR] = useState([[0]])
   const [surfacePlotG, setSurfacePlotG] = useState([[0]])
   const [surfacePlotB, setSurfacePlotB] = useState([[0]])
@@ -19,11 +19,11 @@ function GraphContainer({ diffFile, interpolationData, bValue }) {
         let green_diff = [];
         let blue_diff = [];
         let max = 45;
-        for (let g = 0; g < 256; g++) {
+        for (let g = 0; g < 256; g+=RGBIncrement) {
           let red_row = []; // Initialize a new row
           let green_row = [];
           let blue_row = [];
-          for (let r = 0; r < 256; r++) {
+          for (let r = 0; r < 256; r+=RGBIncrement) {
             red_row.push(interpolationData[r][g][b][0]); // Add the value to the row
             green_row.push(interpolationData[r][g][b][1]); // Add the value to the row
             blue_row.push(interpolationData[r][g][b][2]); // Add the value to the row
@@ -42,17 +42,15 @@ function GraphContainer({ diffFile, interpolationData, bValue }) {
       // You can use arr as needed here
     }
     calculate()
-  }, [interpolationData, bValue]);
+  }, [interpolationData, bValue, RGBIncrement]);
 
 
   return (
-    //surfacePlotB && surfacePlotG&&surfacePlotR?(
     <div className="graph-container">
-      <Graph data={surfacePlotR} title={`Red Channel Diffs (Blue=${bValue})`} bValue={bValue} maxDiff={maxDiff}/>
-      <Graph data={surfacePlotG} title={`Green Channel Diffs (Blue=${bValue})`} bValue={bValue} maxDiff={maxDiff} />
-      <Graph data={surfacePlotB} title={`Blue Channel Diffs (Blue=${bValue})`} bValue={bValue} maxDiff={maxDiff} />
-    </div>//):
-    //<div>Please Upload files</div>
+      <Graph data={surfacePlotR} title={`Red Channel Diffs (Blue=${bValue})`} bValue={bValue} maxDiff={maxDiff} RGBIncrement={RGBIncrement} />
+      <Graph data={surfacePlotG} title={`Green Channel Diffs (Blue=${bValue})`} bValue={bValue} maxDiff={maxDiff} RGBIncrement={RGBIncrement} />
+      <Graph data={surfacePlotB} title={`Blue Channel Diffs (Blue=${bValue})`} bValue={bValue} maxDiff={maxDiff} RGBIncrement={RGBIncrement} />
+    </div>
   )
 }
 
