@@ -10,6 +10,10 @@ export default function Compare() {
   const [valueB, setValueB] = useState(50);
   const [panelAColor, setPanelAColor] = useState('rgb(150,50,50)');
   const [panelBColor, setPanelBColor] = useState('rgb(150,50,50)');
+
+  const [showLeft, setShowLeft] = useState(true);
+  const [showRight, setShowRight] = useState(true);
+
   const { interpolationData } = useInterpolationData();
 
   const [open, setOpen] = useState(false);
@@ -46,7 +50,6 @@ export default function Compare() {
   ]
 
 
-
   function handleButton(toAdd) {
     setPanelAColor(`rgb(${valueR}, ${valueG}, ${valueB}, 1)`)
     if (interpolationData) {
@@ -64,25 +67,38 @@ export default function Compare() {
   }
 
   return (
-    <div className="panel" style={{ display: "flex", flexDirection: "column", height: "100vh-56px" }}>
+    <div className="panel" style={{ flexDirection: "column", height: "100vh-56px", padding: "5px" }}>
       <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
-        <div
-          style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: "49vw" }}
-          ref={ref2}
-        >
-        </div>
-        <div
-          style={{ flexGrow: 1, background: panelBColor, height: "50vh", width: "49vw" }}
-          ref={ref3}
-        >
-        </div>
+        {showLeft &&
+          <div
+            style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: showRight ? "49vw" : "98vw" }}
+            ref={ref2}
+          >
+          </div>
+        }
+        {showRight &&
+          <div
+            style={{ flexGrow: 1, background: panelBColor, height: "50vh", width: showLeft ? "49vw" : "98vw" }}
+            ref={ref3}
+          >
+          </div>
+        }
+        {
+          !showLeft && !showRight &&
+          <div style={{ flexGrow: 1, height: "50vh", background: "white" }}></div>
+        }
+      </div>
+      <div>{!interpolationData && "No JSON Found"}</div>
+      <div style={{ display: "flex", flexDirection: "row", gap: "15px", padding: "20px" }} ref={ref4}>
+        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
+        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
+        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueB} onChange={value => setValueB(value)} addonAfter="B" />
       </div>
       <div style={{ display: "flex", flexDirection: "row", gap: "15px", padding: "20px" }} ref={ref4}>
-        <InputNumber min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
-        <InputNumber min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
-        <InputNumber min={0} max={255} defaultValue={0} value={valueB} onChange={value => setValueB(value)} addonAfter="B" />
-        <Button onClick={() => handleButton(true)}>+</Button>
-        <Button onClick={() => handleButton(false)}>-</Button>
+        <Button onClick={() => handleButton(true)} disabled={!interpolationData}>Add RGB Difference</Button>
+        <Button onClick={() => handleButton(false)} disabled={!interpolationData}>Subtract RGB Difference</Button>
+        <Button onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
+        <Button onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
         <Button icon={<QuestionCircleOutlined />} type="default"
           onClick={() => setOpen(true)}
         >
