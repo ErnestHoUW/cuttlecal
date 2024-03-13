@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Button, Upload } from 'antd';
-import { ExpandOutlined } from '@ant-design/icons';
+import { Button, Upload, Tour } from 'antd';
+import { QuestionCircleOutlined, ExpandOutlined } from '@ant-design/icons';
 import { useInterpolationData } from '../InterpolationDataContext';
-
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -11,8 +10,6 @@ const getBase64 = (file) =>
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);
     });
-
-
 
 export default function ImageCompare() {
     const [uploadedFile, setUploadedFile] = useState('');
@@ -23,6 +20,50 @@ export default function ImageCompare() {
 
     const [showLeft, setShowLeft] = useState(true);
     const [showRight, setShowRight] = useState(true);
+    const [open, setOpen] = useState(false);
+
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const ref5 = useRef(null);
+    const ref6 = useRef(null);
+
+    const steps = [
+        {
+            title: "Image Compare Page Overview",
+            description: "This Image Compare page displays a image in your current monitor versus that same image in a different monitor, based on the JSON document you uploaded in the Upload Page.",
+            target: () => ref1.current
+        },
+        {
+            title: "Your Monitor's Colors",
+            description: "The left side of the screen shows the image for your monitor.",
+            placement: "left",
+            target: () => ref2.current
+        },
+        {
+            title: "Other Monitor's Colors",
+            description: "The right side of the screen displays the image other monitor.",
+            placement: "right",
+            target: () => ref3.current
+        },
+        {
+            title: "Image Upload",
+            description: "Use this to upload your image to be compared",
+            target: () => ref5.current
+        },
+        {
+            title: "Subtract/Add RGB Difference",
+            description: "Use this button to adjust the difference between the monitors' colors at that color.",
+            placement: "bottom",
+            target: () => ref4.current
+        },
+        {
+            title: "Show/Hide Images",
+            description: "Use these buttons to show or hide the left/right images",
+            target: () => ref6.current
+        }
+    ]
 
     const generateNewImage = async (file) => {
         setUploadedFile(file)
@@ -152,12 +193,15 @@ export default function ImageCompare() {
                     }}
                     src={previewImage}
                     alt=""
+                    ref={ref2}
                 />
                     :
                     <div
                         style={{
                             height: '60vh',
+                            width: '48vw'
                         }}
+                        ref={ref2}
                     ></div>
                 }
                 {adjustedImage && showRight ? <img
@@ -166,37 +210,50 @@ export default function ImageCompare() {
                     }}
                     src={adjustedImage}
                     alt=""
+                    ref={ref3}
                 />
                     :
                     <div
                         style={{
                             height: '60vh',
+                            width: '48vw'
                         }}
+                        ref={ref3}
                     ></div>
                 }
             </div>
 
             <div>{!interpolationData && "No JSON Found"}</div>
-            <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
+            <div style={{ display: "flex" }}>
                 <Upload
                     action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                     onChange={handlePreview}
+                    showUploadList={false}
                 >
-                    <Button disabled={!interpolationData}>{"Upload"}</Button>
+                    <Button style={{marginRight: "15px"}} ref={ref5} disabled={!interpolationData}>{"Upload"}</Button>
                 </Upload>
-
                 <Button onClick={async () => {
                     setToAdd(!toAdd)
                     setAdjustedImage(await generateNewImage(uploadedFile))
                 }}
+                    ref={ref4}
                     disabled={!interpolationData}
+                    style={{ marginRight: "15px" }}
                 > {toAdd ? "Subtract RGB Difference" : "Add RGB Difference"}
                 </Button>
-                <Button onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
-                <Button onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
-                <Button onClick={openPreviewInNewWindow} disabled={!previewImage} icon={<ExpandOutlined />}>Pop Left</Button>
-                <Button onClick={openAdjustedInNewWindow} disabled={!adjustedImage} icon={<ExpandOutlined />}>Pop Right</Button>
+                <div ref={ref6}>
+                    <Button style={{ marginRight: "15px" }} onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
+                    <Button style={{ marginRight: "15px" }} onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
+                </div>
+                <Button style={{ marginRight: "15px" }} onClick={openPreviewInNewWindow} disabled={!previewImage} icon={<ExpandOutlined />}>Pop Left</Button>
+                <Button style={{ marginRight: "15px" }} onClick={openAdjustedInNewWindow} disabled={!adjustedImage} icon={<ExpandOutlined />}>Pop Right</Button>
+                <Button icon={<QuestionCircleOutlined />} type="default"
+                    onClick={() => setOpen(true)}
+                >
+                </Button>
             </div>
+
+            <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
         </div>
     );
 };

@@ -112,17 +112,17 @@ export default function Compare() {
 
   return (
     <div className="panel" style={{ flexDirection: "column", height: "100vh-56px", padding: "5px" }}>
-      <div style={{ display: "flex", flexGrow: 1, gap: "30px" }}>
+      <div style={{ display: "flex", flexGrow: 1 }}>
         {showLeft &&
           <div
-            style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: showRight ? "49vw" : "98vw" }}
+            style={{ flexGrow: 1, background: panelAColor, height: "50vh", width: showRight ? "49vw" : "100vw", marginRight: showRight ? "30px" : "0px"}}
             ref={ref2}
           >
           </div>
         }
         {showRight &&
           <div
-            style={{ flexGrow: 1, background: panelBColor, height: "50vh", width: showLeft ? "49vw" : "98vw" }}
+            style={{ flexGrow: 1, background: panelBColor, height: "50vh", width: showLeft ? "49vw" : "100vw" }}
             ref={ref3}
           >
           </div>
@@ -133,18 +133,18 @@ export default function Compare() {
         }
       </div>
       <div>{!interpolationData && "No JSON Found"}</div>
-      <div style={{ display: "flex", flexDirection: "row", gap: "15px", padding: "20px" }} ref={ref4}>
-        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
-        <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
+      <div style={{ display: "flex", flexDirection: "row", padding: "20px" }} ref={ref4}>
+        <InputNumber style={{marginRight: "15px"}} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueR} onChange={value => setValueR(value)} addonAfter="R" />
+        <InputNumber style={{marginRight: "15px"}} disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueG} onChange={value => setValueG(value)} addonAfter="G" />
         <InputNumber disabled={!interpolationData} min={0} max={255} defaultValue={0} value={valueB} onChange={value => setValueB(value)} addonAfter="B" />
       </div>
-      <div style={{ display: "flex", flexDirection: "row", gap: "15px", padding: "20px" }} ref={ref4}>
-        <Button onClick={() => handleButton(true)} disabled={!interpolationData}>Add RGB Difference</Button>
-        <Button onClick={() => handleButton(false)} disabled={!interpolationData}>Subtract RGB Difference</Button>
-        <Button onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
-        <Button onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
-        <Button onClick={openPanelAInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Left</Button>
-        <Button onClick={openPanelBInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Right</Button>
+      <div style={{ display: "flex", flexDirection: "row", padding: "20px" }} ref={ref4}>
+        <Button style={{marginRight: "15px"}} onClick={() => handleButton(true)} disabled={!interpolationData}>Add RGB Difference</Button>
+        <Button style={{marginRight: "15px"}} onClick={() => handleButton(false)} disabled={!interpolationData}>Subtract RGB Difference</Button>
+        <Button style={{marginRight: "15px"}} onClick={() => setShowLeft(!showLeft)}>{showLeft ? "Hide Left" : "Show Left"}</Button>
+        <Button style={{marginRight: "15px"}} onClick={() => setShowRight(!showRight)}>{showRight ? "Hide Right" : "Show Right"}</Button>
+        <Button style={{marginRight: "15px"}} onClick={openPanelAInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Left</Button>
+        <Button style={{marginRight: "15px"}} onClick={openPanelBInNewWindow} disabled={!interpolationData} icon={<ExpandOutlined />}>Pop Right</Button>
         <Button icon={<QuestionCircleOutlined />} type="default"
           onClick={() => setOpen(true)}
         >
